@@ -233,7 +233,11 @@ export const updateProblem = async (req, res) => {
           referenceSolution,
         },
       });
-      return res.status(201).json(updateProblem);
+      return res.status(201).json({
+        success: true,
+        message: "Problem Updated Successfully",
+        updateProblem
+      });
     }
   } catch (error) {}
 };
