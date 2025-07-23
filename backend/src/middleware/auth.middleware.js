@@ -53,7 +53,7 @@ export const checkAdmin = async (req,res,next) => {
         const userId = req.user.id;
         const user = await db.user.findUnique({
             where: {
-                id: user.id
+                id: userId
             },
             select:{
                 role: true
