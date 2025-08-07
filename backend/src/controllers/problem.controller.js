@@ -148,7 +148,36 @@ export const getProblemById = async (req, res) => {
   }
 };
 
-export const getAllProblemsSolvedByUser = async (req, res) => {};
+export const getAllProblemsSolvedByUser = async (req, res) => {
+  try {
+    const problems = await db.problem.findMany({
+      where: {
+        solvedBy: {
+          some:{
+            userId: req.user.id
+          }
+        }
+      },
+      include:{
+        solvedBy:{
+          where:{
+            userId: req.user.id
+          }
+        }
+      }
+    })
+    res.status(200).json({
+      success: true,
+      message: "Problems fetched Successfully",
+      problems
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      error: "Error in updating Problem"
+    })
+  }
+};
 
 export const updateProblem = async (req, res) => {
   const { id } = req.params;
@@ -239,7 +268,12 @@ export const updateProblem = async (req, res) => {
         updateProblem
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      error: "Error in fetching Problems"
+    })
+  }
 };
 
 export const deleteProblem = async (req, res) => {
