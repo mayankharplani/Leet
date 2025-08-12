@@ -1,12 +1,12 @@
 import React from 'react'
-import Footer from '../components/Footer'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 const HomePage = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <Header/>
+      <Header />
 
       {/* Hero Section */}
       <section className="hero-section">
@@ -18,9 +18,9 @@ const HomePage = () => {
             </h1>
             <span className="brand">CodeVerse</span>
             <p>
-             Build strong coding skills through structured practice, real-world problem sets, 
-             and performance tracking that ensures you stay consistent, 
-             motivated, and ready for any coding challenge
+              Build strong coding skills through structured practice, real-world problem sets, 
+              and performance tracking that ensures you stay consistent, 
+              motivated, and ready for any coding challenge
             </p>
             
             <div className="cta-buttons">
@@ -36,40 +36,40 @@ const HomePage = () => {
           {/* Right Side - Visual Cards */}
           <div className="space-y-4">
             {/* Top Row - 2 Cards */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="hero-visual-content flex-1">
                 <div className="hero-visual-icon">
-                  🎯
+                  ⚡
                 </div>
-                <h3 className='text-[1.2rem]'>Crack Any DSA Pattern</h3>
-                <p className='text-[0.85rem]'>Master proven problem-solving patterns used by top coders</p>
+                <h3>Problem Patterns</h3>
+                <p>Master 50+ algorithmic patterns with curated challenges</p>
               </div>
               
               <div className="hero-visual-content flex-1">
                 <div className="hero-visual-icon">
                   🏢
                 </div>
-                <h3 className='text-[1.2rem]'>Company Tags</h3>
-                <p className='text-[0.85rem]'>Practice problems tagged by FAANG and top tech companies</p>
+                <h3>Company Tags</h3>
+                <p>Practice problems tagged by FAANG and top tech companies</p>
               </div>
             </div>
             
             {/* Bottom Row - 2 Cards */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="hero-visual-content flex-1">
                 <div className="hero-visual-icon">
-                  ⏳
+                  🤖
                 </div>
-                <h3 className='text-[1.2rem]'>Real Contest Experience</h3>
-                <p className='text-[0.85rem]'>Train in a timed environment with real problems so you’re ready for the pressure of actual coding competitions.</p>
+                <h3>AI-Powered Help</h3>
+                <p>Get instant guidance to unblock your coding challenges</p>
               </div>
               
               <div className="hero-visual-content flex-1">
                 <div className="hero-visual-icon">
                   ⚙️
                 </div>
-                <h3 className='text-[1.2rem]'>Smart Progress</h3>
-                <p className='text-[0.85rem]'>Stay consistent with a personalized dashboard that shows your solved problems, learning streaks, and skill growth over time.</p>
+                <h3>Smart Progress</h3>
+                <p>Track your learning journey with intelligent analytics</p>
               </div>
             </div>
           </div>
@@ -78,11 +78,11 @@ const HomePage = () => {
 
       {/* Main Features Section */}
       <section className="feature-section">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="max-w-7xl mx-auto text-center px-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             Your Complete Coding Success Toolkit
           </h2>
-          <p className="text-xl text-gray-600 mb-12">
+          <p className="text-lg sm:text-xl text-gray-600 mb-12">
             A comprehensive platform designed for modern developers
           </p>
           
@@ -138,18 +138,16 @@ const HomePage = () => {
         </div>
       </section>
 
-
       {/* CTA Section */}
-      <section className="py-16 feature-section">
+      <section className="py-12 sm:py-16 feature-section">
         <div className="max-w-4xl mx-auto text-center px-4">
-          <h2 className="text-[2.8rem] font-bold text-[#543310] mb-4">
+          <h2 className="text-2xl sm:text-[2.8rem] font-bold text-[#543310] mb-4">
             Ready to Transform Your Coding Skills?
           </h2>
-          <p className="text-lg text-[#AF8F6F] mb-8">
+          <p className="text-base sm:text-lg text-[#AF8F6F] mb-8">
             Start your journey with CodeVerse today and join thousands of developers 
-           
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="btn-primary text-lg px-8 py-3">
               Get Started for Free
             </button>

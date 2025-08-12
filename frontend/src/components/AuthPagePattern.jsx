@@ -3,7 +3,7 @@ import React from 'react'
 const AuthPagePattern = () => {
   return (
     <div
-          className="w-1/2 relative overflow-hidden"
+          className="w-1/2 relative overflow-hidden hide-on-mobile "
           style={{
             background: "linear-gradient(135deg, #543310 20%, #ffffff 120%)",
           }}
