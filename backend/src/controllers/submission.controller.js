@@ -53,9 +53,9 @@ export const getAllTheSubmissionsForProblem = async (req,res) => {
     try {
        const problemId = req.params.problemId;
        const submission = await db.submission.count({
-        where: {
-            problemId: problemId
-        }
+            where: {
+                problemId: problemId
+            }
        })
        res.status(200).json({
         success: true,

@@ -35,6 +35,7 @@ export const createProblem = async (req, res) => {
   // What does entries method will do -> it will go to all the key value pairs of object
   try {
     for (const [language, solutionCode] of Object.entries(referenceSolution)) {
+      // console.log(Object.entries(referenceSolution));
       const languageId = getJudge0LanguageId(language); // this function will give you the judge0 id of that particular language of reference solution
       // console.log(languageId);
       if (!languageId) {
@@ -42,12 +43,14 @@ export const createProblem = async (req, res) => {
           error: `Language ${language} is not Supported`,
         });
       }
+      // console.log(testcases)
       const submissions = testcases.map(({ input, output }) => ({
         source_code: solutionCode,
         language_id: languageId,
         stdin: input,
         expected_output: output,
       }));
+      console.log(submissions);
       // now this submission variable is array of objects in which every object contains all fields
       // like source_code,language_id,stdin,expected_output for test cases
 
@@ -58,7 +61,7 @@ export const createProblem = async (req, res) => {
 
       // this tokens is array of tokens of test cases
       const tokens = submissionResults.map((res) => res.token);
-
+      console.log(tokens);
       // this method will polling the result means it checks continously that all the test cases are accepted or failed
       const results = await pollBatchResults(tokens);
       // console.log(results);
@@ -89,7 +92,11 @@ export const createProblem = async (req, res) => {
           userId: req.user.id,
         },
       });
-      return res.status(201).json(newProblem);
+      return res.status(201).json({
+        success: true,
+        message: "Problem Created Successfully",
+        newProblem
+      });
     }
   } catch (error) {
     console.log("Error in creating Problem", error);
@@ -148,36 +155,6 @@ export const getProblemById = async (req, res) => {
   }
 };
 
-export const getAllProblemsSolvedByUser = async (req, res) => {
-  try {
-    const problems = await db.problem.findMany({
-      where: {
-        solvedBy: {
-          some:{
-            userId: req.user.id
-          }
-        }
-      },
-      include:{
-        solvedBy:{
-          where:{
-            userId: req.user.id
-          }
-        }
-      }
-    })
-    res.status(200).json({
-      success: true,
-      message: "Problems fetched Successfully",
-      problems
-    })
-  } catch (error) {
-    console.log(error)
-    return res.status(500).json({
-      error: "Error in updating Problem"
-    })
-  }
-};
 
 export const updateProblem = async (req, res) => {
   const { id } = req.params;
@@ -199,7 +176,7 @@ export const updateProblem = async (req, res) => {
   } = req.body;
   if (req.user.role !== "ADMIN") {
     return res.status(403).json({
-      message: "You are not allowed to create a problem",
+      message: "You are not Allowed to Update a Problem",
     });
   }
   try {
@@ -229,22 +206,22 @@ export const updateProblem = async (req, res) => {
         expected_output: output,
       }));
       const submissionResults = await submitBatch(submissions);
-
+      
       const tokens = submissionResults.map((res) => res.token);
-
+      
       const results = await pollBatchResults(tokens);
-
+      
       for (let i = 0; i < results.length; i++) {
         const result = results[i];
         console.log("Result----", result);
-
+        
         if (result.status.id !== 3) {
           return res.status(400).json({
             error: `test case ${i + 1} failed for language ${language}`,
           });
         }
       }
-
+      
       // save the problem to database
       const updateProblem = await db.problem.update({
         where: {
@@ -294,6 +271,40 @@ export const deleteProblem = async (req, res) => {
     console.log(error)
     return res.status(500).json({
       error: "Error in deleting Problem"
+    })
+  }
+};
+
+
+
+export const getAllProblemsSolvedByUser = async (req, res) => {
+  try {
+    const problems = await db.problem.findMany({
+      where: {
+        solvedBy: {
+          some:{
+            userId: req.user.id
+          }
+        }
+      },
+      include:{
+        solvedBy:{
+          where:{
+            userId: req.user.id
+          }
+        }
+      }
+    })
+    console.log(problems);
+    res.status(200).json({
+      success: true,
+      message: "Problems fetched Successfully",
+      problems
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      error: "Error in updating Problem"
     })
   }
 };

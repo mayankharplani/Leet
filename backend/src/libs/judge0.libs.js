@@ -36,14 +36,11 @@ export const pollBatchResults = async (tokens)=>{
                 base64_encoded:false,
             }
         })
-        // console.log(`${process.env.JUDGE0_API_URL}/submissions/batch`);
-        
-        // console.log(data);
         
         const results = data.submissions;
 
         const isAllDone = results.every(
-            (r)=> r.status.id !== 1 && r.status.id !== 2
+            (r)=> r.status.id >= 3
         )
 
         if(isAllDone) return results
