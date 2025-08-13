@@ -9,6 +9,8 @@ import LoginPage from './pages/LoginPage.jsx'
 import SignUpPage from './pages/SignUpPage.jsx'
 import { useAuthStore } from './store/useAuthStore.js'
 import MainPage from './pages/MainPage.jsx'
+import AdminRoute from './components/AdminRoute.jsx'
+import AddProblem from './pages/AddProblem.jsx'
 
 const App = () => {
   const {authUser, checkAuth, isCheckingAuth} = useAuthStore()
@@ -46,7 +48,12 @@ const App = () => {
         path='/main' 
         element={authUser ? <MainPage/> : <Navigate to={"/login"}/>} 
         /> 
-
+        <Route element={<AdminRoute/>}>
+          <Route
+          path='/add-problem'
+          element={authUser ? <AddProblem/> : <Navigate to={"/main"} />}
+          />
+        </Route>
       </Routes>
     </div>
   )
