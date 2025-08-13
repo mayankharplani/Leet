@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaGithub, FaGoogle, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SpinnerIcon } from "@phosphor-icons/react";
+import { useNavigate } from "react-router-dom";
 
 import { EyeOff, Eye } from "lucide-react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import AuthPagePattern from "../components/AuthPagePattern";
+import { useAuthStore } from "../store/useAuthStore.js";
 
 const SignUpSchema = z.object({
   email: z.string().email("Enter Valid Email"),
@@ -18,6 +20,15 @@ const SignUpSchema = z.object({
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const { isSigninUp, signup, authUser } = useAuthStore();
+
+  // Redirect to main page if already logged in
+  useEffect(() => {
+    if (authUser) {
+      navigate('/main');
+    }
+  }, [authUser, navigate]);
 
   const {
     register,
@@ -28,7 +39,13 @@ const SignUpPage = () => {
   });
 
   const onSubmit = async (data) => {
-    console.log(data);
+    try {
+      await signup(data);
+      console.log("Signup data", data);
+      // Signup will automatically redirect due to useEffect above
+    } catch (error) {
+      console.error("Error Signing Up", error);
+    }
   };
 
   return (
@@ -149,16 +166,7 @@ const SignUpPage = () => {
                 <button
                   type="submit"
                   className="w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200"
-                  //   disabled={isSigninUp}
-                  //   {isSigninUp ? (
-                  //     <>
-                  //     <SpinnerIcon className="h-5 w-5 animate-spin"  />
-                  //     Loading...
-                  //     </>
-                  //   ) : (
-                  //     "Sign in"
-                  //   )}
-
+                  disabled={isSigninUp}
                   style={{
                     backgroundColor: "var(--color-button)",
                     boxShadow: "0 4px 14px rgba(116, 81, 45, 0.3)",
@@ -173,7 +181,14 @@ const SignUpPage = () => {
                     e.target.style.transform = "translateY(0)";
                   }}
                 >
-                  Create account
+                  {isSigninUp ? (
+                    <>
+                      <SpinnerIcon className="h-5 w-5 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
                 </button>
               </form>
 

@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { EyeOff, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import AuthPagePattern from "../components/AuthPagePattern";
+import {useAuthStore} from "../store/useAuthStore.js"
 import { FaGithub,FaLinkedin,FaGoogle } from "react-icons/fa";
+import { SpinnerIcon } from "@phosphor-icons/react";
 
 export const LoginSchema = z.object({
   email: z.string().email("Enter Valid Email"),
@@ -15,6 +18,15 @@ export const LoginSchema = z.object({
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const {isLoggingIn, login, authUser} = useAuthStore();
+  
+  // Redirect to main page if already logged in
+  useEffect(() => {
+    if (authUser) {
+      navigate('/main');
+    }
+  }, [authUser, navigate]);
 
   const {
     register,
@@ -25,7 +37,12 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data) => {
-    console.log(data);
+    try {
+      await login(data);
+      // Login will automatically redirect due to useEffect above
+    } catch (error) {
+      console.error("Signin Failed", error);
+    }
   };
 
   return (
@@ -135,6 +152,7 @@ const LoginPage = () => {
                 <button
                   type="submit"
                   className="w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200"
+                  disabled={isLoggingIn}
                   style={{
                     backgroundColor: "var(--color-button)",
                     boxShadow: "0 4px 14px rgba(116, 81, 45, 0.3)",
@@ -149,7 +167,16 @@ const LoginPage = () => {
                     e.target.style.transform = "translateY(0)";
                   }}
                 >
-                  Sign in
+                  { isLoggingIn ? (
+                    <>
+                      <SpinnerIcon className="h-5 w-5 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )
+
+                }
                 </button>
               </form>
 

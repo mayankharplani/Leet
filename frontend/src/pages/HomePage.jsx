@@ -1,8 +1,30 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import { useAuthStore } from '../store/useAuthStore.js'
 
 const HomePage = () => {
+  const navigate = useNavigate();
+  const { authUser } = useAuthStore();
+  const isLoggedIn = !!authUser;
+
+  const handleGetStarted = () => {
+    if (isLoggedIn) {
+      navigate('/main');
+    } else {
+      navigate('/signup');
+    }
+  };
+
+  const handleContinueLearning = () => {
+    if (isLoggedIn) {
+      navigate('/main');
+    } else {
+      navigate('/login');
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -24,11 +46,17 @@ const HomePage = () => {
             </p>
             
             <div className="cta-buttons">
-              <button className="btn-explore">
-                Get Started &gt;
+              <button 
+                className="btn-explore"
+                onClick={handleGetStarted}
+              >
+                {isLoggedIn ? 'Go to Problems' : 'Get Started &gt;'}
               </button>
-              <button className="btn-primary">
-                Continue Learning
+              <button 
+                className="btn-primary"
+                onClick={handleContinueLearning}
+              >
+                {isLoggedIn ? 'Continue Learning' : 'Sign In'}
               </button>
             </div>
           </div>
