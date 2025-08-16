@@ -3,6 +3,7 @@ import { useProblemStore } from "../store/useProblemStore.js";
 import { Loader, Code, Filter, X } from "lucide-react";
 import ProblemTable from "../components/ProblemTable.jsx";
 import Navbar from "../components/Navbar.jsx";
+import Footer from "../components/Footer.jsx"
 
 const HomePage = () => {
   const {getAllProblems, problems, isProblemsLoading} = useProblemStore();
@@ -53,7 +54,7 @@ const HomePage = () => {
   const hasActiveFilters = selectedDifficulties.length > 0 || selectedStatus !== "Any" || selectedTags.length > 0;
 
   if(isProblemsLoading){
-    return (
+  return (
       <div className="flex items-center justify-center h-screen" style={{ backgroundColor: 'var(--cream)' }}>
         <div className="text-center">
           <Loader className="size-16 animate-spin mx-auto mb-4" style={{ color: 'var(--steel)' }} />
@@ -299,7 +300,9 @@ const HomePage = () => {
             </div>
           </div>
         </div>
+        
       </div>
+      <Footer /> 
     </div>
   );
 };

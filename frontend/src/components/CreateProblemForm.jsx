@@ -11,13 +11,15 @@ import {
   CheckCircle2,
   Download,
   FileJson,
+  Sparkles,
+  Settings,
+  Zap,
 } from "lucide-react";
-import Editor from "@monaco-editor/react";
+import {Editor} from "@monaco-editor/react";
 import { useState } from "react";
 import { axiosInstance } from "../libs/axios.js";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import AutofillForm from "./AutofillForm.jsx";
+import { toast } from "react-toastify";
 
 const problemSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -64,6 +66,7 @@ const problemSchema = z.object({
   }),
 });
 
+// Sample data remains the same...
 const sampledpData = {
   title: "Climbing Stairs",
   category: "dp", // Dynamic Programming
@@ -310,7 +313,6 @@ class Main {
   },
 };
 
-// Sample problem data for another type of question
 const sampleStringProblem = {
   title: "Valid Palindrome",
   description:
@@ -512,7 +514,10 @@ public class Main {
 };
 
 const CreateProblemForm = () => {
+
+
   const [sampleType, setSampleType] = useState("DP");
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigate();
   const {
     register,
@@ -542,7 +547,6 @@ const CreateProblemForm = () => {
       },
     },
   });
-
   const {
     fields: testCaseFields,
     append: appendTestCase,
@@ -552,7 +556,6 @@ const CreateProblemForm = () => {
     control,
     name: "testcases",
   });
-
   const {
     fields: tagFields,
     append: appendTag,
@@ -563,18 +566,22 @@ const CreateProblemForm = () => {
     name: "tags",
   });
 
-  const [isLoading, setIsLoading] = useState(false);
-
+  
+ 
   const onSubmit = async (value) => {
     try {
       setIsLoading(true);
       const res = await axiosInstance.post("/problem/create-problem", value);
       console.log(res.data);
-      toast.success(res.data.message || "Problem Created successfully⚡");
+      toast(res.data.message || "Problem Created successfully⚡",{
+        position: "top-left"
+      });
       navigation("/");
     } catch (error) {
       console.log(error);
-      toast.error("Error creating problem");
+      toast("Error creating problem",{
+        position: "top-left"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -586,178 +593,301 @@ const CreateProblemForm = () => {
     replaceTags(sampleData.tags.map((tag) => tag));
     replacetestcases(sampleData.testcases.map((tc) => tc));
 
-    // Reset the form with sample data
     reset(sampleData);
   };
 
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        const safeData = {
+          title: jsonData.title || "",
+          description: jsonData.description || "",
+          difficulty: jsonData.difficulty || "EASY",
+          tags: jsonData.tags?.length ? jsonData.tags : [""],
+          constraints: jsonData.constraints || "",
+          hints: jsonData.hints || "",
+          editorial: jsonData.editorial || "",
+          testcases: jsonData.testcases?.length
+            ? jsonData.testcases.map((tc) => ({
+                input: tc.input || "",
+                output: tc.output || "",
+              }))
+            : [{ input: "", output: "" }],
+          examples: {
+            JAVASCRIPT: {
+              input: jsonData.examples?.JAVASCRIPT?.input || "",
+              output: jsonData.examples?.JAVASCRIPT?.output || "",
+              explanation: jsonData.examples?.JAVASCRIPT?.explanation || "",
+            },
+            PYTHON: {
+              input: jsonData.examples?.PYTHON?.input || "",
+              output: jsonData.examples?.PYTHON?.output || "",
+              explanation: jsonData.examples?.PYTHON?.explanation || "",
+            },
+            JAVA: {
+              input: jsonData.examples?.JAVA?.input || "",
+              output: jsonData.examples?.JAVA?.output || "",
+              explanation: jsonData.examples?.JAVA?.explanation || "",
+            },
+          },
+          codeSnippets: {
+            JAVASCRIPT: jsonData.codeSnippets?.JAVASCRIPT || "",
+            PYTHON: jsonData.codeSnippets?.PYTHON || "",
+            JAVA: jsonData.codeSnippets?.JAVA || "",
+          },
+          referenceSolution: {
+            JAVASCRIPT: jsonData.referenceSolution?.JAVASCRIPT || "",
+            PYTHON: jsonData.referenceSolution?.PYTHON || "",
+            JAVA: jsonData.referenceSolution?.JAVA || "",
+          },
+        };
+        console.log(safeData);
+        reset(safeData);
+        replaceTags(safeData.tags);
+        replacetestcases(safeData.testcases);
+
+        toast("Problem imported successfully!");
+      } catch (err) {
+        console.error(err);
+        toast("Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+
+
+
+
   return (
-    <div className="container mx-auto p-1 min-w-screen">
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body p-6 md:p-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b">
-            <h2 className="card-title text-2xl md:text-3xl flex items-center gap-3">
-              <FileText className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-              Create Problem
-            </h2>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: 'var(--cream)' }}>
+      {/* Background Graphics */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Subtle Grid Pattern */}
+        <div className="absolute inset-0 opacity-3">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, var(--steel) 1px, transparent 0)`,
+            backgroundSize: '80px 80px'
+          }}></div>
+        </div>
+        
+        {/* Floating Code Elements */}
+        <div className="absolute top-20 left-16 text-4xl text-[var(--steel)] opacity-15 animate-float hidden lg:block">&lt;/&gt;</div>
+        <div className="absolute top-40 right-24 text-3xl text-[var(--beige)] opacity-12 animate-float hidden lg:block" style={{ animationDelay: '2s' }}>{'{}'}</div>
+        <div className="absolute top-60 left-1/3 text-2xl text-[var(--navy)] opacity-10 animate-float hidden lg:block" style={{ animationDelay: '4s' }}>[]</div>
+        
+        {/* Floating Dots */}
+        <div className="absolute top-32 left-20 w-2 h-2 bg-[var(--steel)] rounded-full opacity-20 animate-float hidden lg:block"></div>
+        <div className="absolute top-48 right-32 w-1.5 h-1.5 bg-[var(--beige)] rounded-full opacity-15 animate-float hidden lg:block" style={{ animationDelay: '1.5s' }}></div>
+      </div>
 
-            <div className="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
-              <div className="join">
-                <button
-                  type="button"
-                  className={`btn join-item ${
-                    sampleType === "DP" ? "btn-active" : ""
-                  }`}
-                  onClick={() => setSampleType("array")}
-                >
-                  DP Problem
-                </button>
-                <button
-                  type="button"
-                  className={`btn join-item ${
-                    sampleType === "string" ? "btn-active" : ""
-                  }`}
-                  onClick={() => setSampleType("string")}
-                >
-                  String Problem
-                </button>
+      {/* Main Content */}
+      <div className="relative z-10 pt-4 sm:pt-8 pb-8 sm:pb-16 px-3 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-8 sm:mb-12">
+            <button 
+            onClick={() => navigation("/problems")}
+            className=" absolute top-8 right-[82%] btn bg-[var(--navy)]">Go to Problems</button>
+            <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-[var(--beige)] border border-[var(--steel)] text-[var(--navy)] text-xs sm:text-sm font-medium shadow-lg mb-4 sm:mb-6">
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              Create New Problem
+            </div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4" style={{ color: 'var(--navy)' }}>
+              Design Your Challenge
+            </h1>
+            <p className="text-sm sm:text-base lg:text-lg text-[var(--steel)] max-w-2xl mx-auto px-4">
+              Create engaging coding problems that will challenge and inspire developers
+            </p>
+          </div>
+
+          {/* Import Section */}
+          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)] mb-6 sm:mb-8">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
+                  <FileJson className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--navy)' }}>Quick Import</h3>
+                  <p className="text-sm sm:text-base text-[var(--steel)]">Upload a JSON file to auto-fill the form</p>
+                </div>
               </div>
-              <button
-                type="button"
-                className="btn btn-secondary gap-2"
-                onClick={loadSampleData}
-              >
-                <Download className="w-4 h-4" />
-                Load Sample
-              </button>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full lg:w-auto">
+                <label className="cursor-pointer px-4 sm:px-6 py-2 sm:py-3 bg-[var(--steel)] text-white rounded-xl shadow-lg hover:bg-[var(--steel-dark)] transition-all duration-200 hover:scale-105 w-full sm:w-auto text-center">
+                  <FileJson className="w-4 h-4 mr-2 inline" />
+                  Choose File
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="application/json"
+                    onChange={handleImport}
+                  />
+                </label>
+                
+                <div className="text-center w-full sm:w-auto">
+                  <p className="text-xs sm:text-sm text-[var(--steel)] mb-2">OR</p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
+                        sampleType === "DP" 
+                          ? "bg-[var(--steel)] text-white" 
+                          : "bg-[var(--beige)] text-[var(--navy)] hover:bg-[var(--steel)] hover:text-white"
+                      }`}
+                      onClick={() => setSampleType("DP")}
+                    >
+                      DP Problem
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
+                        sampleType === "string" 
+                          ? "bg-[var(--steel)] text-white" 
+                          : "bg-[var(--beige)] text-[var(--navy)] hover:bg-[var(--steel)] hover:text-white"
+                      }`}
+                      onClick={() => setSampleType("string")}
+                    >
+                      String Problem
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    className="mt-2 px-3 sm:px-4 py-2 bg-[var(--beige)] text-[var(--navy)] rounded-lg text-xs sm:text-sm font-medium hover:bg-[var(--steel)] hover:text-white transition-all duration-200 w-full sm:w-auto"
+                    onClick={loadSampleData}
+                  >
+                    <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline" />
+                    Load Sample
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-          <div className=" mt-8 flex flex-row gap-20 items-center">
-            <div className="flex gap-2">
-              <FileJson className="size-10" />
-              <h1 className="card-title text-xl md:text-2xl flex items-center gap-3">
-                Autofill Form
-              </h1>
-            </div>
-            <AutofillForm/>
-          </div>
-          <hr className="" />
 
-          <h1 className="text-xl text-center mt-8">OR</h1>
-          <div className=" flex flex-row gap-20 items-center">
-            <div className="flex gap-2">
-              <FileText className="w-6 h-6 md:w-8 md:h-8" />
-              <h1 className="card-title text-xl md:text-2xl flex items-center gap-3">
-                Manually
-              </h1>
-            </div>
-          </div>
-          <hr className="" />
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 mt-6">
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
             {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="form-control md:col-span-2">
-                <label className="label">
-                  <span className="label-text text-base md:text-lg font-semibold">
-                    Title
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full text-base md:text-lg"
-                  {...register("title")}
-                  placeholder="Enter problem title"
-                />
-                {errors.title && (
-                  <label className="label">
-                    <span className="label-text-alt text-error">
-                      {errors.title.message}
-                    </span>
-                  </label>
-                )}
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>Basic Information</h3>
               </div>
-
-              <div className="form-control md:col-span-2">
-                <label className="label">
-                  <span className="label-text text-base md:text-lg font-semibold">
-                    Description
-                  </span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered min-h-32 w-full text-base md:text-lg p-4 resize-y"
-                  {...register("description")}
-                  placeholder="Enter problem description"
-                />
-                {errors.description && (
+              
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                <div className="form-control">
                   <label className="label">
-                    <span className="label-text-alt text-error">
-                      {errors.description.message}
+                    <span className="label-text text-base sm:text-lg font-semibold" style={{ color: 'var(--navy)' }}>
+                      Problem Title
                     </span>
                   </label>
-                )}
-              </div>
+                  <input
+                    type="text"
+                    className="input input-bordered w-full text-base sm:text-lg border-[var(--steel)] text-white bg-[var(--navy)] opacity-90 focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-100"
+                    {...register("title")}
+                    placeholder="Enter a descriptive problem title"
+                  />
+                  {errors.title && (
+                    <label className="label">
+                      <span className="label-text-alt text-red-500">
+                        {errors.title.message}
+                      </span>
+                    </label>
+                  )}
+                </div>
 
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-base md:text-lg font-semibold">
-                    Difficulty
-                  </span>
-                </label>
-                <select
-                  className="select select-bordered w-full text-base md:text-lg"
-                  {...register("difficulty")}
-                >
-                  <option value="EASY">Easy</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HARD">Hard</option>
-                </select>
-                {errors.difficulty && (
+                <div className="form-control">
                   <label className="label">
-                    <span className="label-text-alt text-error">
-                      {errors.difficulty.message}
+                    <span className="label-text text-base sm:text-lg font-semibold" style={{ color: 'var(--navy)' }}>
+                      Problem Description
                     </span>
                   </label>
-                )}
+                  <textarea
+                    className="textarea textarea-bordered min-h-24 sm:min-h-32 w-full text-base sm:text-lg border-[var(--steel)] text-white bg-[var(--navy)] opacity-90 focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y"
+                    {...register("description")}
+                    placeholder="Describe the problem clearly with examples and context"
+                  />
+                  {errors.description && (
+                    <label className="label">
+                      <span className="label-text-alt text-red-500">
+                        {errors.description.message}
+                      </span>
+                    </label>
+                  )}
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text text-base sm:text-lg font-semibold" style={{ color: 'var(--navy)' }}>
+                      Difficulty Level
+                    </span>
+                  </label>
+                  <select
+                    className="select select-bordered w-full text-base sm:text-lg text-white bg-[var(--navy)] opacity-90 border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20"
+                    {...register("difficulty")}
+                  >
+                    <option value="EASY">Easy</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HARD">Hard</option>
+                  </select>
+                  {errors.difficulty && (
+                    <label className="label">
+                      <span className="label-text-alt text-red-500">
+                        {errors.difficulty.message}
+                      </span>
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Tags */}
-            <div className="card bg-base-200 p-4 md:p-6 shadow-md">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" />
-                  Tags
-                </h3>
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
+                    <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>Problem Tags</h3>
+                </div>
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm gap-2 hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
                   onClick={() => appendTag("")}
                 >
-                  <Plus className="w-4 h-4 mr-1" /> Add Tag
+                  <Plus className="w-4 h-4" /> Add Tag
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {tagFields.map((field, index) => (
                   <div key={field.id} className="flex gap-2 items-center">
                     <input
                       type="text"
-                      className="input input-bordered flex-1"
+                      className="input input-bordered flex-1 border-[var(--steel)] text-white bg-[var(--navy)] opacity-90 focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 text-sm sm:text-base"
                       {...register(`tags.${index}`)}
-                      placeholder="Enter tag"
+                      placeholder="Enter tag (e.g., Array, DP, String)"
                     />
                     <button
                       type="button"
-                      className="btn btn-ghost btn-square btn-sm"
+                      className="btn btn-ghost btn-square btn-sm hover:bg-red-50 hover:text-red-600 transition-colors duration-200 flex-shrink-0"
                       onClick={() => removeTag(index)}
                       disabled={tagFields.length === 1}
                     >
-                      <Trash2 className="w-4 h-4 text-error" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
               </div>
               {errors.tags && (
-                <div className="mt-2">
-                  <span className="text-error text-sm">
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <span className="text-red-600 text-sm font-medium">
                     {errors.tags.message}
                   </span>
                 </div>
@@ -765,84 +895,87 @@ const CreateProblemForm = () => {
             </div>
 
             {/* Test Cases */}
-            <div className="card bg-base-200 p-4 md:p-6 shadow-md">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5" />
-                  Test Cases
-                </h3>
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>Test Cases</h3>
+                </div>
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm gap-2 hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
                   onClick={() => appendTestCase({ input: "", output: "" })}
                 >
-                  <Plus className="w-4 h-4 mr-1" /> Add Test Case
+                  <Plus className="w-4 h-4" /> Add Test Case
                 </button>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {testCaseFields.map((field, index) => (
-                  <div key={field.id} className="card bg-base-100 shadow-md">
-                    <div className="card-body p-4 md:p-6">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="text-base md:text-lg font-semibold">
-                          Test Case #{index + 1}
-                        </h4>
-                        <button
-                          type="button"
-                          className="btn btn-ghost btn-sm text-error"
-                          onClick={() => removeTestCase(index)}
-                          disabled={testCaseFields.length === 1}
-                        >
-                          <Trash2 className="w-4 h-4 mr-1" /> Remove
-                        </button>
+                  <div key={field.id} className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+                      <h4 className="text-base sm:text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--navy)' }}>
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[var(--steel)] text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
+                          {index + 1}
+                        </div>
+                        Test Case #{index + 1}
+                      </h4>
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-sm text-red-600 hover:bg-red-50 transition-colors duration-200 w-full sm:w-auto"
+                        onClick={() => removeTestCase(index)}
+                        disabled={testCaseFields.length === 1}
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" /> Remove
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                            Input
+                          </span>
+                        </label>
+                        <textarea
+                          className="textarea textarea-bordered min-h-20 sm:min-h-24 text-white bg-[var(--navy)] opacity-90 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
+                          {...register(`testcases.${index}.input`)}
+                          placeholder="Enter test case input"
+                        />
+                        {errors.testcases?.[index]?.input && (
+                          <label className="label">
+                            <span className="label-text-alt text-red-500">
+                              {errors.testcases[index].input.message}
+                            </span>
+                          </label>
+                        )}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <div className="form-control">
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                            Expected Output
+                          </span>
+                        </label>
+                        <textarea
+                          className="textarea textarea-bordered min-h-20 sm:min-h-24 text-white bg-[var(--navy)] opacity-90 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
+                          {...register(`testcases.${index}.output`)}
+                          placeholder="Enter expected output"
+                        />
+                        {errors.testcases?.[index]?.output && (
                           <label className="label">
-                            <span className="label-text font-medium">
-                              Input
+                            <span className="label-text-alt text-red-500">
+                              {errors.testcases[index].output.message}
                             </span>
                           </label>
-                          <textarea
-                            className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
-                            {...register(`testcases.${index}.input`)}
-                            placeholder="Enter test case input"
-                          />
-                          {errors.testcases?.[index]?.input && (
-                            <label className="label">
-                              <span className="label-text-alt text-error">
-                                {errors.testcases[index].input.message}
-                              </span>
-                            </label>
-                          )}
-                        </div>
-                        <div className="form-control">
-                          <label className="label">
-                            <span className="label-text font-medium">
-                              Expected Output
-                            </span>
-                          </label>
-                          <textarea
-                            className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
-                            {...register(`testcases.${index}.output`)}
-                            placeholder="Enter expected output"
-                          />
-                          {errors.testcases?.[index]?.output && (
-                            <label className="label">
-                              <span className="label-text-alt text-error">
-                                {errors.testcases[index].output.message}
-                              </span>
-                            </label>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
               {errors.testcases && !Array.isArray(errors.testcases) && (
-                <div className="mt-2">
-                  <span className="text-error text-sm">
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <span className="text-red-600 text-sm font-medium">
                     {errors.testcases.message}
                   </span>
                 </div>
@@ -850,154 +983,152 @@ const CreateProblemForm = () => {
             </div>
 
             {/* Code Editor Sections */}
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               {["JAVASCRIPT", "PYTHON", "JAVA"].map((language) => (
                 <div
                   key={language}
-                  className="card bg-base-200 p-4 md:p-6 shadow-md"
+                  className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]"
                 >
-                  <h3 className="text-lg md:text-xl font-semibold mb-6 flex items-center gap-2">
-                    <Code2 className="w-5 h-5" />
-                    {language}
-                  </h3>
+                  <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
+                      <Code2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>{language}</h3>
+                  </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {/* Starter Code */}
-                    <div className="card bg-base-100 shadow-md">
-                      <div className="card-body p-4 md:p-6">
-                        <h4 className="font-semibold text-base md:text-lg mb-4">
-                          Starter Code Template
-                        </h4>
-                        <div className="border rounded-md overflow-hidden">
-                          <Controller
-                            name={`codeSnippets.${language}`}
-                            control={control}
-                            render={({ field }) => (
-                              <Editor
-                                height="300px"
-                                language={language.toLowerCase()}
-                                theme="vs-dark"
-                                value={field.value}
-                                onChange={field.onChange}
-                                options={{
-                                  minimap: { enabled: false },
-                                  fontSize: 14,
-                                  lineNumbers: "on",
-                                  roundedSelection: false,
-                                  scrollBeyondLastLine: false,
-                                  automaticLayout: true,
-                                }}
-                              />
-                            )}
-                          />
-                        </div>
-                        {errors.codeSnippets?.[language] && (
-                          <div className="mt-2">
-                            <span className="text-error text-sm">
-                              {errors.codeSnippets[language].message}
-                            </span>
-                          </div>
-                        )}
+                    <div className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]">
+                      <h4 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--navy)' }}>
+                        <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--steel)]" />
+                        Starter Code Template
+                      </h4>
+                      <div className="border border-[var(--steel)] rounded-lg overflow-hidden">
+                        <Controller
+                          name={`codeSnippets.${language}`}
+                          control={control}
+                          render={({ field }) => (
+                            <Editor
+                              height="250px"
+                              language={language.toLowerCase()}
+                              theme="oceanic-next"
+                              value={field.value}
+                              onChange={field.onChange}
+                              options={{
+                                minimap: { enabled: false },
+                                fontSize: 12,
+                                lineNumbers: "on",
+                                roundedSelection: false,
+                                scrollBeyondLastLine: false,
+                                automaticLayout: true,
+                              }}
+                            />
+                          )}
+                        />
                       </div>
+                      {errors.codeSnippets?.[language] && (
+                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <span className="text-red-600 text-sm font-medium">
+                            {errors.codeSnippets[language].message}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Reference Solution */}
-                    <div className="card bg-base-100 shadow-md">
-                      <div className="card-body p-4 md:p-6">
-                        <h4 className="font-semibold text-base md:text-lg mb-4 flex items-center gap-2">
-                          <CheckCircle2 className="w-5 h-5 text-success" />
-                          Reference Solution
-                        </h4>
-                        <div className="border rounded-md overflow-hidden">
-                          <Controller
-                            name={`referenceSolution.${language}`}
-                            control={control}
-                            render={({ field }) => (
-                              <Editor
-                                height="300px"
-                                language={language.toLowerCase()}
-                                theme="vs-dark"
-                                value={field.value}
-                                onChange={field.onChange}
-                                options={{
-                                  minimap: { enabled: false },
-                                  fontSize: 14,
-                                  lineNumbers: "on",
-                                  roundedSelection: false,
-                                  scrollBeyondLastLine: false,
-                                  automaticLayout: true,
-                                }}
-                              />
-                            )}
-                          />
-                        </div>
-                        {errors.referenceSolution?.[language] && (
-                          <div className="mt-2">
-                            <span className="text-error text-sm">
-                              {errors.referenceSolution[language].message}
-                            </span>
-                          </div>
-                        )}
+                    <div className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]">
+                      <h4 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--navy)' }}>
+                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                        Reference Solution
+                      </h4>
+                      <div className="border border-[var(--steel)] rounded-lg overflow-hidden">
+                        <Controller
+                          name={`referenceSolution.${language}`}
+                          control={control}
+                          render={({ field }) => (
+                            <Editor
+                              height="250px"
+                              language={language.toLowerCase()}
+                              theme="vs-dark"
+                              value={field.value}
+                              onChange={field.onChange}
+                              options={{
+                                minimap: { enabled: false },
+                                fontSize: 12,
+                                lineNumbers: "on",
+                                roundedSelection: false,
+                                scrollBeyondLastLine: false,
+                                automaticLayout: true,
+                              }}
+                            />
+                          )}
+                        />
                       </div>
+                      {errors.referenceSolution?.[language] && (
+                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <span className="text-red-600 text-sm font-medium">
+                            {errors.referenceSolution[language].message}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Examples */}
-                    <div className="card bg-base-100 shadow-md">
-                      <div className="card-body p-4 md:p-6">
-                        <h4 className="font-semibold text-base md:text-lg mb-4">
-                          Example
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                          <div className="form-control">
+                    <div className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]">
+                      <h4 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--navy)' }}>
+                        <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
+                        Example
+                      </h4>
+                      <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                        <div className="form-control">
+                          <label className="label">
+                            <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                              Input
+                            </span>
+                          </label>
+                          <textarea
+                            className="textarea textarea-bordered text-white bg-[var(--navy)] opacity-90 min-h-16 sm:min-h-20 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
+                            {...register(`examples.${language}.input`)}
+                            placeholder="Example input"
+                          />
+                          {errors.examples?.[language]?.input && (
                             <label className="label">
-                              <span className="label-text font-medium">
-                                Input
+                              <span className="label-text-alt text-red-500">
+                                {errors.examples[language].input.message}
                               </span>
                             </label>
-                            <textarea
-                              className="textarea textarea-bordered min-h-20 w-full p-3 resize-y"
-                              {...register(`examples.${language}.input`)}
-                              placeholder="Example input"
-                            />
-                            {errors.examples?.[language]?.input && (
-                              <label className="label">
-                                <span className="label-text-alt text-error">
-                                  {errors.examples[language].input.message}
-                                </span>
-                              </label>
-                            )}
-                          </div>
-                          <div className="form-control">
+                          )}
+                        </div>
+                        <div className="form-control">
+                          <label className="label">
+                            <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                              Output
+                            </span>
+                          </label>
+                          <textarea
+                            className="textarea textarea-bordered min-h-16 sm:min-h-20 text-white bg-[var(--navy)] opacity-90 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
+                            {...register(`examples.${language}.output`)}
+                            placeholder="Example output"
+                          />
+                          {errors.examples?.[language]?.output && (
                             <label className="label">
-                              <span className="label-text font-medium">
-                                Output
+                              <span className="label-text-alt text-red-500">
+                                {errors.examples[language].output.message}
                               </span>
                             </label>
-                            <textarea
-                              className="textarea textarea-bordered min-h-20 w-full p-3 resize-y"
-                              {...register(`examples.${language}.output`)}
-                              placeholder="Example output"
-                            />
-                            {errors.examples?.[language]?.output && (
-                              <label className="label">
-                                <span className="label-text-alt text-error">
-                                  {errors.examples[language].output.message}
-                                </span>
-                              </label>
-                            )}
-                          </div>
-                          <div className="form-control md:col-span-2">
-                            <label className="label">
-                              <span className="label-text font-medium">
-                                Explanation
-                              </span>
-                            </label>
-                            <textarea
-                              className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
-                              {...register(`examples.${language}.explanation`)}
-                              placeholder="Explain the example"
-                            />
-                          </div>
+                          )}
+                        </div>
+                        <div className="form-control">
+                          <label className="label">
+                            <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                              Explanation
+                            </span>
+                          </label>
+                          <textarea
+                            className="textarea textarea-bordered text-white bg-[var(--navy)] opacity-90 min-h-20 sm:min-h-24 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
+                            {...register(`examples.${language}.explanation`)}
+                            placeholder="Explain the example"
+                          />
                         </div>
                       </div>
                     </div>
@@ -1007,24 +1138,26 @@ const CreateProblemForm = () => {
             </div>
 
             {/* Additional Information */}
-            <div className="card bg-base-200 p-4 md:p-6 shadow-md">
-              <h3 className="text-lg md:text-xl font-semibold mb-6 flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-warning" />
-                Additional Information
-              </h3>
-              <div className="space-y-6">
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
+                  <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>Additional Information</h3>
+              </div>
+              <div className="space-y-4 sm:space-y-6">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium">Constraints</span>
+                    <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>Constraints</span>
                   </label>
                   <textarea
-                    className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
+                    className="textarea textarea-bordered text-white bg-[var(--navy)] opacity-90 min-h-20 sm:min-h-24 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
                     {...register("constraints")}
-                    placeholder="Enter problem constraints"
+                    placeholder="Enter problem constraints (e.g., 1 <= n <= 10^5)"
                   />
                   {errors.constraints && (
                     <label className="label">
-                      <span className="label-text-alt text-error">
+                      <span className="label-text-alt text-red-500">
                         {errors.constraints.message}
                       </span>
                     </label>
@@ -1032,42 +1165,54 @@ const CreateProblemForm = () => {
                 </div>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium">
+                    <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
                       Hints (Optional)
                     </span>
                   </label>
                   <textarea
-                    className="textarea textarea-bordered min-h-24 w-full p-3 resize-y"
+                    className="textarea textarea-bordered text-white bg-[var(--navy)] opacity-90 min-h-20 sm:min-h-24 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
                     {...register("hints")}
-                    placeholder="Enter hints for solving the problem"
+                    placeholder="Enter helpful hints for solving the problem"
                   />
                 </div>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium">
+                    <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
                       Editorial (Optional)
                     </span>
                   </label>
                   <textarea
-                    className="textarea textarea-bordered min-h-32 w-full p-3 resize-y"
+                    className="textarea textarea-bordered text-white bg-[var(--navy)] opacity-90 min-h-24 sm:min-h-32 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
                     {...register("editorial")}
-                    placeholder="Enter problem editorial/solution explanation"
+                    placeholder="Enter detailed solution explanation and approach"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="card-actions justify-end pt-4 border-t">
-              <button type="submit" className="btn btn-primary btn-lg gap-2">
-                {isLoading ? (
-                  <span className="loading loading-spinner text-white"></span>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-5 h-5" />
-                    Create Problem
-                  </>
-                )}
-              </button>
+            {/* Submit Button */}
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+                <div className="text-center sm:text-left">
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: 'var(--navy)' }}>Ready to Create?</h3>
+                  <p className="text-sm sm:text-base text-[var(--steel)]">Review your problem details and submit when ready</p>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  className="btn btn-primary btn-lg gap-3 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="loading loading-spinner text-white"></span>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                      Create Problem
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -1077,3 +1222,4 @@ const CreateProblemForm = () => {
 };
 
 export default CreateProblemForm;
+
