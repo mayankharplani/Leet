@@ -268,11 +268,13 @@ const Navbar = () => {
                     <Code className="w-5 h-5" />
                     Add Problem
                   </Link>
-                  <hr className="border-gray-200" />
-                  <LogoutButton onClick={() => setIsDropdownOpen(false)}>
+                  <hr className="border-gray-200 hidden" />
+                  <div onClick={() => setIsDropdownOpen(false)}>
+                    <LogoutButton >
                     <LockIcon className="size-3" />
                     {"Logout"}
                   </LogoutButton>
+                  </div>
                 </div>
               )}
             </div>

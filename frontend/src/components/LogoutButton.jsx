@@ -14,7 +14,7 @@ const LogoutButton = ({children}) => {
     }
 
   return (
-    <button onClick={onLogout} className="flex gap-3 navbar cursor-pointer text-gray-300  px-3 py-1 rounded-md text-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 hover:text-white hover:bg-gray-800 transition-colors duration-200 nav-item-hover" >
+    <button onClick={onLogout} className="flex gap-3 navbar cursor-pointer text-gray-300  px-3  rounded-md text-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 hover:text-white hover:bg-gray-800 transition-colors duration-200 nav-item-hover" >
         {children}
     </button>
   )
