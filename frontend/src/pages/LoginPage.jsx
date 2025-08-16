@@ -1,231 +1,227 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { EyeOff, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import AuthPagePattern from "../components/AuthPagePattern";
-import {useAuthStore} from "../store/useAuthStore.js"
-import { FaGithub,FaLinkedin,FaGoogle } from "react-icons/fa";
-import { SpinnerIcon } from "@phosphor-icons/react";
+import { FaGithub, FaGoogle, FaLinkedin } from "react-icons/fa";
+import {
+  Code,
+  Mail,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Braces,
+  FileCode,
+  Terminal,
+  BugIcon,
+  GitBranch,
+  FileJson2,
+  Binary,
+} from "lucide-react";
 
-export const LoginSchema = z.object({
-  email: z.string().email("Enter Valid Email"),
-  password: z.string().min(6, "Password must be atleast of length 6"),
+import AuthImagePattern from "../components/AuthImagePattern.jsx";
+import { useAuthStore } from "../store/useAuthStore.js";
+import Navbar from "../components/Navbar.jsx";
+
+const LoginSchema = z.object({
+  email: z.string().email("Enter a Valid Email"),
+  password: z.string().min(6, "Password must be atleast of 6 length"),
 });
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const {isLoggingIn, login, authUser} = useAuthStore();
-  
-  // Redirect to main page if already logged in
-  useEffect(() => {
-    if (authUser) {
-      navigate('/main');
-    }
-  }, [authUser, navigate]);
+
+  const { isLoggingIn, login } = useAuthStore();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: zodResolver(LoginSchema),
   });
-
   const onSubmit = async (data) => {
     try {
       await login(data);
-      // Login will automatically redirect due to useEffect above
+      navigate("/problems")
+      reset();
     } catch (error) {
-      console.error("Signin Failed", error);
+      console.error("Login Failed", error);
     }
   };
-
   return (
-    <div className="min-h-screen min-w-screen flex flex-col">
-      <Header />
-      <div className="flex flex-col lg:flex-row flex-1">
-        {/* Left Column - Login Form */}
-        <div className="w-full lg:w-1/2 bg-white p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
-          <div className="max-w-md mx-auto w-full">
-            {/* Header */}
-            <div className="text-center mb-6 sm:mb-8">
-              <div className="flex items-center justify-center space-x-2 mb-15"></div>
-              <div className="w-12 h-11 bg-white rounded-xl flex items-center justify-center border-2 border-[#8f6437] mx-auto mb-4">
-                <span className="text-[#543310] font-bold text-xl">
-                  &lt;/&gt;
-                </span>
+    <div>
+      <Navbar />
+      <div className="h-screen grid lg:grid-cols-2 pt-16" style={{backgroundColor: "var(--cream)"}}>
+        <div className="flex flex-col justify-center items-center p-6 sm:p-12">
+          <div className="w-full min-w-md space-y-8">
+            {/* Logo */}
+            <div className="text-center mb-8">
+              <div className="flex flex-col items-center gap-2 group">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                  <Code className="w-6 h-6 text-primary" />
+                </div>
+                <h1 className="text-2xl font-bold mt-2">Welcome Back</h1>
+                <p>Login to your account</p>
               </div>
-              <p
-                className="text-base sm:text-lg py-1.5"
-                style={{ color: "var(--color-text-light)" }}
-              >
-                Welcome back to CodeVerse
-              </p>
+            </div>
+            <div
+              className="absolute inset-0 opacity-20 pointer-events-none"
+              style={{ color: "var(--navy)" }}
+            >
+              <div className="absolute top-[12%] left-[15%] animate-pulse">
+                <Braces size={40} />
+              </div>
+              <div className="absolute top-[30%] left-[90%] animate-pulse delay-300">
+                <FileCode size={50} />
+              </div>
+              <div className="absolute top-[68%] left-[13%] animate-pulse delay-700">
+                <Terminal size={45} />
+              </div>
+              <div className="absolute top-[90%] left-[80%] animate-pulse delay-500">
+                <Code size={55} />
+              </div>
+              <div className="absolute top-[85%] left-[45%] animate-pulse delay-200">
+                <Braces size={35} />
+              </div>
+              <div className="absolute top-[15%] left-[60%] animate-pulse delay-100">
+                <Terminal size={30} />
+              </div>
+              <div className="absolute bottom-[20%] right-[10%] animate-bounce delay-100">
+                <BugIcon size={50} />
+              </div>
+              <div className="absolute bottom-[10%] right-[90%] animate-pulse delay-200">
+                <GitBranch size={30} />
+              </div>
+              <div className="absolute bottom-[80%] right-[5%] animate-pulse delay-350">
+                <FileJson2 size={30} />
+              </div>
+              <div className="absolute bottom-[60%] right-[90%] animate-bounce delay-150">
+                <Binary size={40} />
+              </div>
             </div>
 
-            {/* Login Card */}
-            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-100">
-              <h2
-                className="text-xl sm:text-2xl font-bold text-center mb-6"
-                style={{ color: "var(--color-header)" }}
-              >
-                Sign in to your account
-              </h2>
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
-              {/* Form */}
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: "var(--color-text)" }}
-                  >
-                    Email address
-                  </label>
+              {/* Email */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Email</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-base-content/40" />
+                  </div>
                   <input
                     type="email"
+                    style={{color: "var(--cream)", opacity: "50"}}
                     {...register("email")}
-                    className={`w-full px-4 text-black py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    className={`input input-bordered w-full pl-10 ${
                       errors.email ? "input-error" : ""
                     }`}
-                    placeholder="Enter your email"
+                    placeholder="you@example.com"
                   />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.email.message}
-                    </p>
-                  )}
                 </div>
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
 
+              {/* Password */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Password</span>
+                </label>
                 <div className="relative">
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: "var(--color-text)" }}
-                  >
-                    Password
-                  </label>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-base-content/40" />
+                  </div>
                   <input
                     type={showPassword ? "text" : "password"}
+                    style={{color: "var(--cream)", opacity: "50"}}
                     {...register("password")}
-                    className={`w-full px-4 text-black py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    className={`input input-bordered w-full pl-10 ${
                       errors.password ? "input-error" : ""
                     }`}
-                    placeholder="Enter your password"
+                    placeholder="••••••••"
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-[70%] -translate-y-1/2 
-               sm:right-4 sm:top-[70%] 
-               md:right-5 
-               lg:right-6"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
+                      <EyeOff className="h-5 w-5 text-base-content/40" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
+                      <Eye className="h-5 w-5 text-base-content/40" />
                     )}
                   </button>
-
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.password.message}
-                    </p>
-                  )}
                 </div>
-
-                <div className="flex items-center justify-between">
-            
-                  <a
-                    href="#"
-                    className="text-sm font-medium"
-                    style={{ color: "var(--color-button)" }}
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200"
-                  disabled={isLoggingIn}
-                  style={{
-                    backgroundColor: "var(--color-button)",
-                    boxShadow: "0 4px 14px rgba(116, 81, 45, 0.3)",
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.backgroundColor =
-                      "var(--color-button-hover)";
-                    e.target.style.transform = "translateY(-2px)";
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.backgroundColor = "var(--color-button)";
-                    e.target.style.transform = "translateY(0)";
-                  }}
-                >
-                  { isLoggingIn ? (
-                    <>
-                      <SpinnerIcon className="h-5 w-5 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    "Sign In"
-                  )
-
-                }
-                </button>
-              </form>
-
-              {/* Sign Up Link */}
-              <div className="text-center mt-6">
-                <p
-                  className="text-sm"
-                  style={{ color: "var(--color-text-light)" }}
-                >
-                  Don't have an account?{" "}
-                  <a
-                    href="/signup"
-                    className="font-semibold"
-                    style={{ color: "var(--color-button)" }}
-                  >
-                    Sign up
-                  </a>
-                </p>
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
-            </div>
 
-            {/* Social Login */}
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="btn btn-primary w-full"
+                disabled={isLoggingIn}
+              >
+                {isLoggingIn ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  "Login"
+                )}
+              </button>
+            </form>
+
+            {/* Footer */}
+            <div className="text-center">
+              <p className="text-base-content/60" style={{ color: "var(--steel)" }}>
+                Don't have an account?{" "}
+                <button
+                  onClick={() => navigate('/signup')}
+                  className="link link-primary"
+                >
+                  Create Account
+                </button>
+              </p>
+            </div>
             <div className="mt-6 sm:mt-8 text-center">
               <p
                 className="text-sm mb-4"
-                style={{ color: "var(--color-text-light)" }}
+                style={{ color: "var(--steel)" }}
               >
                 Or continue with
               </p>
-              <div className="flex justify-center space-x-4">
-                <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors">
-                 <FaGithub size={28} color="#543310" />
+              <div className="flex justify-center space-x-4 cursor-pointer">
+                <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer">
+                  <FaGithub size={28} />
                 </button>
-                <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors">
-                  <FaGoogle size={28} color="#DB4437" />
+                <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer">
+                  <FaGoogle size={28} />
                 </button>
-                <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors">
-                  <FaLinkedin size={28} color="#0077B5" />
+                <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer">
+                  <FaLinkedin size={28} />
                 </button>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Right Column - Features & Code */}
-        <AuthPagePattern />
+        <AuthImagePattern />
       </div>
-
-      <Footer />
     </div>
   );
 };

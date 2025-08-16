@@ -1,62 +1,86 @@
-import React, { useEffect } from 'react'
-import {Route, Routes, Navigate } from "react-router-dom"
-import {Toaster} from "react-hot-toast"
-import {Loader} from "lucide-react"
+import { useEffect, useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { ToastContainer, Zoom } from "react-toastify";
+import { Loader } from "lucide-react";
 
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
+import AddProblem from "./pages/AddProblem";
+import ProfilePage from "./pages/ProfilePage";
+import { useAuthStore } from "./store/useAuthStore.js";
+import Layout from "./layout/Layout.jsx";
+import AdminRoute from "./components/AdminRoute.jsx";
+import ProblemPage from "./pages/ProblemPage.jsx";
+import MainPage from "./pages/MainPage.jsx";
 
-import HomePage from './pages/HomePage.jsx'
-import LoginPage from './pages/LoginPage.jsx'
-import SignUpPage from './pages/SignUpPage.jsx'
-import { useAuthStore } from './store/useAuthStore.js'
-import MainPage from './pages/MainPage.jsx'
-import AdminRoute from './components/AdminRoute.jsx'
-import AddProblem from './pages/AddProblem.jsx'
-
-const App = () => {
-  const {authUser, checkAuth, isCheckingAuth} = useAuthStore()
+function App() {
+  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
   useEffect(() => {
-    checkAuth()
-  },[checkAuth])
+    checkAuth();
+  }, [checkAuth]);
 
-  if(isCheckingAuth && !authUser){   
+  if (isCheckingAuth && !authUser) {
     return (
-      <div className='flex items-center justify-center h-screen'>
-        <Loader className='size-10 animate-spin'/>
+      <div className="flex items-center justify-center h-screen">
+        <Loader className="size-10 animate-spin" />
       </div>
-    )
+    );
   }
 
   return (
-    <div className='flex flex-col items-center justify-start'>
-      <Toaster/>
+    <div className=" flex items-center justify-center">
+      <ToastContainer
+        // position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover={false}
+        theme="dark"
+        transition={Zoom}
+      />
       <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index path="/" element={<MainPage />} />
+        </Route>
+
+        {/*  AUTHENTICATION ROUTES    */}
+        <Route
+          path="/login"
+          element={!authUser ? <LoginPage /> : <Navigate to={"/"} />}
+        />
+
+        <Route path="/signup" element={<SignUpPage />} />
 
         <Route
-        path='/'
-        element={<HomePage/> }
+          path="/problems"
+          element={authUser ? <HomePage /> : <Navigate to={"/login"} />}
         />
+        <Route path="/add-problem" element={<AddProblem />} />
+        {/* <Route path='/problems' element /> */}
+        <Route path="/playlist" element />
+        <Route path="/main" element={<MainPage />} />
+
+        <Route path="/profile" element={<ProfilePage />} />
         <Route
-        path='/login'
-        element={!authUser ? <LoginPage/> : <Navigate to={"/main"}/>}
+          path="/problem/:id"
+          element={authUser ? <ProblemPage /> : <Navigate to={"/login"} />}
         />
-        <Route
-        path='/signup'
-        element={!authUser ? <SignUpPage/> : <Navigate to={"/main"}/>}
-        />
-        <Route 
-        path='/main' 
-        element={authUser ? <MainPage/> : <Navigate to={"/login"}/>} 
-        /> 
-        <Route element={<AdminRoute/>}>
+
+        <Route element={<AdminRoute />}>
           <Route
-          path='/add-problem'
-          element={authUser ? <AddProblem/> : <Navigate to={"/main"} />}
+            path="/add-problem"
+            element={authUser ? <AddProblem /> : <Navigate to={"/"} />}
           />
         </Route>
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

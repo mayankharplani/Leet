@@ -1,10 +1,9 @@
-import React from 'react'
-import CreateProblemForm from '../components/CreateProblemForm.jsx'
+import CreateProblemForm from '../components/CreateProblemForm'
 
 const AddProblem = () => {
   return (
     <div>
-        <CreateProblemForm/>
+      <CreateProblemForm/>
     </div>
   )
 }
