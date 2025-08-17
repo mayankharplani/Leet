@@ -128,8 +128,6 @@ const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "An
                       (user) => user.userId === authUser?.id
                     ) || false;
                     
-                    // Debug logging (remove in production)
-                    console.log(`Problem: ${problem.title}, Solved: ${isSolved}, User: ${authUser?.id}, SolvedBy:`, problem.solvedBy);
                     
                     return (
                       <tr key={problem.id} className={`hover:bg-gray-700 transition-colors duration-200 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-900'}`}>
@@ -241,7 +239,6 @@ const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "An
                         ) || false;
                         
                         // Debug logging (remove in production)
-                        console.log(`Mobile - Problem: ${problem.title}, Solved: ${isSolved}, User: ${authUser?.id}, SolvedBy:`, problem.solvedBy);
                         
                         return (
                             <div key={problem.id} className="bg-gray-800 rounded-xl p-4 border border-gray-700 hover:border-gray-600 transition-all duration-200">

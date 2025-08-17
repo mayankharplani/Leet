@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef,useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Editor } from "@monaco-editor/react";
 import {
@@ -24,14 +24,23 @@ import {
   Target,
   Trophy,
   BarChart3,
-  Code,
+  Code,BotMessageSquare
 } from "lucide-react";
+import { toast } from "react-toastify";
 
+{
+  /* File Imports  */
+}
 import { useProblemStore } from "../store/useProblemStore.js";
 import { useExecutionStore } from "../store/useExecutionStore.js";
+import { useSubmissionStore } from "../store/useSubmissionStore.js";
 import { getLanguageId } from "../libs/lang.js";
 import SubmissionResults from "../components/SubmissionResults.jsx";
-import { toast } from "react-toastify";
+import SubmissionList from "../components/SubmissionList.jsx";
+import RunningResults from "../components/RunningResults.jsx";
+import Timer from "../components/TimerButton.jsx";
+import TimerButton from "../components/TimerButton.jsx";
+import HintButton from "../components/HintButton.jsx";
 
 const ProblemPage = () => {
   const { id } = useParams();
@@ -40,16 +49,23 @@ const ProblemPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [testcases, setTestCases] = useState([]);
-  const submissionCount = 10;
-  const { getProblemById, problem, isProblemLoading } = useProblemStore();
-  const { executeCode, isExecuting, submission } = useExecutionStore();
+  const initRef = useRef(null);
   const urlRef = useRef(window.location.href);
 
-  useEffect(() => {
-    getProblemById(id);
-  }, [id]);
+  {
+    /* Stores  */
+  }
+  const { getProblemById, problem, isProblemLoading } = useProblemStore();
+  const { executeCode, isExecuting, submission,runCode, runningCode,isRunning } = useExecutionStore();
+  const {
+    submissionProblem,
+    isLoading: isSubmissionLoading,
+    getSubmissionForProblem,
+    getSubmissionCountForProblem,
+    submissionCount,
+  } = useSubmissionStore();
 
-  console.log(problem);
+
 
   const normalizedSnippets = useMemo(() => {
     const src = problem?.codeSnippets || {};
@@ -58,7 +74,19 @@ const ProblemPage = () => {
       Object.entries(src).map(([k, v]) => [k.toUpperCase(), v])
     );
   }, [problem]);
-  const initRef = useRef(null);
+
+
+
+  useEffect(() => {
+    getProblemById(id);
+    getSubmissionCountForProblem(id);
+  }, [id]);
+
+  useEffect(() => {
+    if (activeTab === "submissions" && id) {
+      getSubmissionForProblem(id);
+    }
+  }, [activeTab, id]);
 
   useEffect(() => {
     if (!problem) return;
@@ -81,16 +109,64 @@ const ProblemPage = () => {
       }))
     );
   }, [problem, normalizedSnippets]);
+
   useEffect(() => {
     if (!selectedLanguage) return;
     setCode(normalizedSnippets[selectedLanguage.toUpperCase()] || "");
   }, [selectedLanguage, normalizedSnippets]);
+
+
+  
+  const handleRunCode = (e) => {
+      e.preventDefault();
+      try {
+        const language_id = getLanguageId(selectedLanguage);
+        const stdin = problem.testcases.map((tc) => tc.input);
+        const expected_outputs = problem.testcases.map((tc) => tc.output)
+        runCode(code, language_id, stdin, expected_outputs, id)
+      } catch (error) {
+         console.log("Error running Code", error);
+      }
+  };
+
+  const handleSubmitCode = (e) => {
+    e.preventDefault();
+    try {
+      const language_id = getLanguageId(selectedLanguage);
+      const stdin = problem.testcases.map((tc) => tc.input);
+      const expected_outputs = problem.testcases.map((tc) => tc.output);
+      executeCode(code, language_id, stdin, expected_outputs, id);
+    } catch (error) {
+      console.log("Error executing Code", error);
+    }
+  }
+
+
+
+
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(urlRef.current)
+      .then(() => {
+        toast("Link Copied", {
+          position: "top-center",
+        });
+      })
+      .catch((err) => {
+        console.log("Error in Copying", err);
+        toast("Copy Failed", {
+          position: "top-center",
+        });
+      });
+  };
 
   const handleLanguageChange = (e) => {
     const lang = e.target.value;
     setSelectedLanguage(lang);
     setCode(problem.codeSnippets?.[lang] || "");
   };
+
+  console.log("Submissions", submissionCount);
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty?.toUpperCase()) {
@@ -226,17 +302,7 @@ const ProblemPage = () => {
         );
       case "submissions":
         return (
-          <div className="text-center py-8 sm:py-12">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[var(--navy-dark)] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-              <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8 text-[var(--beige)]" />
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-              No Submissions Yet
-            </h3>
-            <p className="text-gray-400 text-sm sm:text-base">
-              Be the first to submit a solution!
-            </p>
-          </div>
+            <SubmissionList submissions={submissionProblem} isLoading={isSubmissionLoading} />
         );
       case "discussion":
         return (
@@ -266,42 +332,18 @@ const ProblemPage = () => {
             </p>
           </div>
         );
+      case "AI":
+        return (
+          <HintButton />
+        );
       default:
         return null;
     }
   };
 
-  const handleRunCode = (e) => {
-    e.preventDefault();
-    try {
-      const language_id = getLanguageId(selectedLanguage);
-      const stdin = problem.testcases.map((tc) => tc.input);
-      const expected_outputs = problem.testcases.map((tc) => tc.output);
-      executeCode(code, language_id, stdin, expected_outputs, id);
-    } catch (error) {
-      console.log("Error executing Code", error);
-    }
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(urlRef.current)
-      .then(() => {
-        toast("Link Copied", {
-          position: "top-center",
-        });
-      })
-      .catch((err) => {
-        console.log("Error in Copying", err);
-        toast("Copy Failed", {
-          position: "top-center",
-        });
-      });
-  };
-
   if (isProblemLoading) {
     return (
-      <div className="min-h-screen bg-[var(--navy-dark)] flex items-center justify-center">
+      <div className="min-h-screen min-w-screen bg-[var(--navy-dark)] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[var(--steel)] border-t-[var(--beige)] rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[var(--beige)] text-lg">Loading Problem...</p>
@@ -538,6 +580,17 @@ const ProblemPage = () => {
                   <Lightbulb className="w-4 h-4 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">Hints</span>
                 </button>
+                <button
+                  className={`tab gap-1 sm:gap-2 text-xs sm:text-sm md:text-base transition-all duration-200 ${
+                    activeTab === "AI"
+                      ? "tab-active bg-[var(--navy)] rounded-xl text-white border-[var(--steel)]"
+                      : "text-gray-300 hover:text-white"
+                  }`}
+                  onClick={() => setActiveTab("AI")}
+                >
+                  <BotMessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">AI</span>
+                </button>
               </div>
             </div>
             <div className="p-3 sm:p-4 md:p-6 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto custom-scrollbar">
@@ -548,11 +601,14 @@ const ProblemPage = () => {
           {/* Right Panel - Code Editor */}
           <div className="bg-[var(--navy)] border border-[var(--steel)] rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden">
             <div className="bg-[var(--steel)] px-3 sm:px-4 md:px-6 py-3 sm:py-4">
-              <div className="flex items-center gap-2 text-white">
-                <Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--beige)]" />
+              <div className="flex items-center justify-between gap-2 text-white">
+                <div className="flex gap-2">
+                  <Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--beige)]" />
                 <span className="font-semibold text-sm sm:text-base">
                   Code Editor
                 </span>
+                </div>
+                <TimerButton/>
               </div>
             </div>
             <div className="h-[50vh] sm:h-[60vh] md:h-[70vh] w-full">
@@ -578,21 +634,30 @@ const ProblemPage = () => {
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
                 <button
                   className={`btn gap-2 transition-all duration-200 w-full sm:w-auto ${
-                    isExecuting
+                    isRunning
                       ? "bg-[var(--steel-dark)] text-gray-400 cursor-not-allowed"
                       : "bg-[var(--beige)] rounded-xl text-[var(--navy)] hover:bg-[var(--steel)] hover:text-white"
                   }`}
                   onClick={handleRunCode}
-                  disabled={isExecuting}
+                  disabled={isRunning}
                 >
-                  {!isExecuting && <Play className="w-4 h-4" />}
+                  {!isRunning && <Play className="w-4 h-4" />}
                   <span className="text-sm sm:text-base">
-                    {isExecuting ? "Running..." : "Run Code"}
+                    {isRunning ? "Running..." : "Run Code"}
                   </span>
                 </button>
-                <button className="btn bg-[var(--success)] rounded-xl text-white hover:bg-green-600 gap-2 transition-all duration-200 w-full sm:w-auto">
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="text-sm sm:text-base">Submit Solution</span>
+                <button className={` btn  gap-2 transition-all duration-200 w-full sm:w-auto
+                  ${
+                    isExecuting ?  " bg-green-300 text-gray-400 cursor-not-allowed" : "bg-[var(--success)] rounded-xl text-white hover:bg-green-600"
+                  }
+                  
+                  
+                  `}
+                  onClick={handleSubmitCode}
+                  disabled={isExecuting}
+                  >
+                  {!isExecuting &&  <CheckCircle className="w-4 h-4" />}
+                  <span className="text-sm sm:text-base">{isExecuting ? "Submitting..." : "Submit Code"}</span>
                 </button>
               </div>
             </div>
@@ -612,7 +677,7 @@ const ProblemPage = () => {
           <div className="p-3 sm:p-4 md:p-6">
             {submission ? (
               <SubmissionResults submission={submission} />
-            ) : (
+            ) : runningCode ? ( <RunningResults data={runningCode}  />  )  : (
               <div className="overflow-x-auto">
                 <table className="table w-full">
                   <thead>
