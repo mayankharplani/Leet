@@ -334,7 +334,7 @@ const ProblemPage = () => {
         );
       case "AI":
         return (
-          <HintButton />
+          <HintButton problem={problem} userCode={code} />
         );
       default:
         return null;
