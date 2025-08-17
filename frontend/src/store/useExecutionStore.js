@@ -33,6 +33,7 @@ export const useExecutionStore = create((set) => ({
         expected_outputs,
         problemId,
       });
+      console.log("Submission data: ",res.data)
       set({ submission: res.data.submission });
       toast.success(res.data.message || "Code Executed");
     } catch (error) {

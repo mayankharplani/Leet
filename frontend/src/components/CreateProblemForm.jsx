@@ -15,7 +15,7 @@ import {
   Settings,
   Zap,
 } from "lucide-react";
-import {Editor} from "@monaco-editor/react";
+import { Editor } from "@monaco-editor/react";
 import { useState } from "react";
 import { axiosInstance } from "../libs/axios.js";
 import { useNavigate } from "react-router-dom";
@@ -53,16 +53,23 @@ const problemSchema = z.object({
       output: z.string().min(1, "Output is required"),
       explanation: z.string().optional(),
     }),
+    CPP: z.object({
+      input: z.string().min(1, "Input is required"),
+      output: z.string().min(1, "Output is required"),
+      explanation: z.string().optional(),
+    }),
   }),
   codeSnippets: z.object({
     JAVASCRIPT: z.string().min(1, "JavaScript code snippet is required"),
     PYTHON: z.string().min(1, "Python code snippet is required"),
     JAVA: z.string().min(1, "Java solution is required"),
+    CPP: z.string().min(1, "C++ Solution is required"),
   }),
   referenceSolution: z.object({
     JAVASCRIPT: z.string().min(1, "JavaScript solution is required"),
     PYTHON: z.string().min(1, "Python solution is required"),
     JAVA: z.string().min(1, "Java solution is required"),
+    CPP: z.string().min(1, "C++ solution is required"),
   }),
 });
 
@@ -514,8 +521,6 @@ public class Main {
 };
 
 const CreateProblemForm = () => {
-
-
   const [sampleType, setSampleType] = useState("DP");
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigate();
@@ -534,16 +539,19 @@ const CreateProblemForm = () => {
         JAVASCRIPT: { input: "", output: "", explanation: "" },
         PYTHON: { input: "", output: "", explanation: "" },
         JAVA: { input: "", output: "", explanation: "" },
+        CPP: { input: "", output: "", explanation: "" },
       },
       codeSnippets: {
         JAVASCRIPT: "function solution() {\n  // Write your code here\n}",
         PYTHON: "def solution():\n    # Write your code here\n    pass",
         JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
+        CPP: "#include <bits/stdc++.h> \nusing namespace std; \n \nint main() { \n    // Write your code here \n \n   return 0; \n}",
       },
       referenceSolution: {
         JAVASCRIPT: "// Add your reference solution here",
         PYTHON: "# Add your reference solution here",
         JAVA: "// Add your reference solution here",
+        CPP: "//  Add your reference solution here",
       },
     },
   });
@@ -566,21 +574,19 @@ const CreateProblemForm = () => {
     name: "tags",
   });
 
-  
- 
   const onSubmit = async (value) => {
     try {
       setIsLoading(true);
       const res = await axiosInstance.post("/problem/create-problem", value);
       console.log(res.data);
-      toast(res.data.message || "Problem Created successfully⚡",{
-        position: "top-left"
+      toast(res.data.message || "Problem Created successfully⚡", {
+        position: "top-left",
       });
-      navigation("/");
+      navigation("/problems");
     } catch (error) {
       console.log(error);
-      toast("Error creating problem",{
-        position: "top-left"
+      toast("Error creating problem", {
+        position: "top-left",
       });
     } finally {
       setIsLoading(false);
@@ -634,16 +640,23 @@ const CreateProblemForm = () => {
               output: jsonData.examples?.JAVA?.output || "",
               explanation: jsonData.examples?.JAVA?.explanation || "",
             },
+            CPP: {
+              input: jsonData.examples?.CPP?.input || "",
+              output: jsonData.examples?.CPP?.output || "",
+              explanation: jsonData.examples?.CPP?.explanation || "",
+            }
           },
           codeSnippets: {
             JAVASCRIPT: jsonData.codeSnippets?.JAVASCRIPT || "",
             PYTHON: jsonData.codeSnippets?.PYTHON || "",
             JAVA: jsonData.codeSnippets?.JAVA || "",
+            CPP: jsonData.codeSnippets?.CPP || "",
           },
           referenceSolution: {
             JAVASCRIPT: jsonData.referenceSolution?.JAVASCRIPT || "",
             PYTHON: jsonData.referenceSolution?.PYTHON || "",
             JAVA: jsonData.referenceSolution?.JAVA || "",
+            CPP: jsonData.referenceSolution?.CPP || "",
           },
         };
         console.log(safeData);
@@ -660,30 +673,47 @@ const CreateProblemForm = () => {
     reader.readAsText(file);
   };
 
-
-
-
-
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: 'var(--cream)' }}>
+    <div
+      className="min-h-screen relative overflow-hidden"
+      style={{ backgroundColor: "var(--cream)" }}
+    >
       {/* Background Graphics */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {/* Subtle Grid Pattern */}
         <div className="absolute inset-0 opacity-3">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, var(--steel) 1px, transparent 0)`,
-            backgroundSize: '80px 80px'
-          }}></div>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, var(--steel) 1px, transparent 0)`,
+              backgroundSize: "80px 80px",
+            }}
+          ></div>
         </div>
-        
+
         {/* Floating Code Elements */}
-        <div className="absolute top-20 left-16 text-4xl text-[var(--steel)] opacity-15 animate-float hidden lg:block">&lt;/&gt;</div>
-        <div className="absolute top-40 right-24 text-3xl text-[var(--beige)] opacity-12 animate-float hidden lg:block" style={{ animationDelay: '2s' }}>{'{}'}</div>
-        <div className="absolute top-60 left-1/3 text-2xl text-[var(--navy)] opacity-10 animate-float hidden lg:block" style={{ animationDelay: '4s' }}>[]</div>
-        
+        <div className="absolute top-20 left-16 text-4xl text-[var(--steel)] opacity-15 animate-float hidden lg:block">
+          &lt;/&gt;
+        </div>
+        <div
+          className="absolute top-40 right-24 text-3xl text-[var(--beige)] opacity-12 animate-float hidden lg:block"
+          style={{ animationDelay: "2s" }}
+        >
+          {"{}"}
+        </div>
+        <div
+          className="absolute top-60 left-1/3 text-2xl text-[var(--navy)] opacity-10 animate-float hidden lg:block"
+          style={{ animationDelay: "4s" }}
+        >
+          []
+        </div>
+
         {/* Floating Dots */}
         <div className="absolute top-32 left-20 w-2 h-2 bg-[var(--steel)] rounded-full opacity-20 animate-float hidden lg:block"></div>
-        <div className="absolute top-48 right-32 w-1.5 h-1.5 bg-[var(--beige)] rounded-full opacity-15 animate-float hidden lg:block" style={{ animationDelay: '1.5s' }}></div>
+        <div
+          className="absolute top-48 right-32 w-1.5 h-1.5 bg-[var(--beige)] rounded-full opacity-15 animate-float hidden lg:block"
+          style={{ animationDelay: "1.5s" }}
+        ></div>
       </div>
 
       {/* Main Content */}
@@ -691,18 +721,31 @@ const CreateProblemForm = () => {
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
           <div className="text-center mb-8 sm:mb-12">
-            <button 
-            onClick={() => navigation("/problems")}
-            className=" absolute top-8 right-[82%] btn bg-[var(--navy)]">Go to Problems</button>
+            <button
+              onClick={() => navigation("/problems")}
+              className="
+    absolute 
+    top-3 left-[15%] transform -translate-x-1/2   /* mobile: center bottom */
+    sm:left-6 sm:bottom-4 sm:translate-x-0        /* small screens: bottom-left */
+    lg:top-8 lg:right-[82%]                       /* large screens: custom position */
+    btn bg-[var(--navy)]
+  "
+            >
+              Go to Problems
+            </button>
             <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-[var(--beige)] border border-[var(--steel)] text-[var(--navy)] text-xs sm:text-sm font-medium shadow-lg mb-4 sm:mb-6">
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
               Create New Problem
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4" style={{ color: 'var(--navy)' }}>
+            <h1
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4"
+              style={{ color: "var(--navy)" }}
+            >
               Design Your Challenge
             </h1>
             <p className="text-sm sm:text-base lg:text-lg text-[var(--steel)] max-w-2xl mx-auto px-4">
-              Create engaging coding problems that will challenge and inspire developers
+              Create engaging coding problems that will challenge and inspire
+              developers
             </p>
           </div>
 
@@ -714,11 +757,18 @@ const CreateProblemForm = () => {
                   <FileJson className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--navy)' }}>Quick Import</h3>
-                  <p className="text-sm sm:text-base text-[var(--steel)]">Upload a JSON file to auto-fill the form</p>
+                  <h3
+                    className="text-lg sm:text-xl font-bold"
+                    style={{ color: "var(--navy)" }}
+                  >
+                    Quick Import
+                  </h3>
+                  <p className="text-sm sm:text-base text-[var(--steel)]">
+                    Upload a JSON file to auto-fill the form
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full lg:w-auto">
                 <label className="cursor-pointer px-4 sm:px-6 py-2 sm:py-3 bg-[var(--steel)] text-white rounded-xl shadow-lg hover:bg-[var(--steel-dark)] transition-all duration-200 hover:scale-105 w-full sm:w-auto text-center">
                   <FileJson className="w-4 h-4 mr-2 inline" />
@@ -730,15 +780,17 @@ const CreateProblemForm = () => {
                     onChange={handleImport}
                   />
                 </label>
-                
+
                 <div className="text-center w-full sm:w-auto">
-                  <p className="text-xs sm:text-sm text-[var(--steel)] mb-2">OR</p>
+                  <p className="text-xs sm:text-sm text-[var(--steel)] mb-2">
+                    OR
+                  </p>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       type="button"
                       className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
-                        sampleType === "DP" 
-                          ? "bg-[var(--steel)] text-white" 
+                        sampleType === "DP"
+                          ? "bg-[var(--steel)] text-white"
                           : "bg-[var(--beige)] text-[var(--navy)] hover:bg-[var(--steel)] hover:text-white"
                       }`}
                       onClick={() => setSampleType("DP")}
@@ -748,8 +800,8 @@ const CreateProblemForm = () => {
                     <button
                       type="button"
                       className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
-                        sampleType === "string" 
-                          ? "bg-[var(--steel)] text-white" 
+                        sampleType === "string"
+                          ? "bg-[var(--steel)] text-white"
                           : "bg-[var(--beige)] text-[var(--navy)] hover:bg-[var(--steel)] hover:text-white"
                       }`}
                       onClick={() => setSampleType("string")}
@@ -771,20 +823,31 @@ const CreateProblemForm = () => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 sm:space-y-8"
+          >
             {/* Basic Information */}
             <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]">
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
                   <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>Basic Information</h3>
+                <h3
+                  className="text-xl sm:text-2xl font-bold"
+                  style={{ color: "var(--navy)" }}
+                >
+                  Basic Information
+                </h3>
               </div>
-              
+
               <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text text-base sm:text-lg font-semibold" style={{ color: 'var(--navy)' }}>
+                    <span
+                      className="label-text text-base sm:text-lg font-semibold"
+                      style={{ color: "var(--navy)" }}
+                    >
                       Problem Title
                     </span>
                   </label>
@@ -805,7 +868,10 @@ const CreateProblemForm = () => {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text text-base sm:text-lg font-semibold" style={{ color: 'var(--navy)' }}>
+                    <span
+                      className="label-text text-base sm:text-lg font-semibold"
+                      style={{ color: "var(--navy)" }}
+                    >
                       Problem Description
                     </span>
                   </label>
@@ -825,7 +891,10 @@ const CreateProblemForm = () => {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text text-base sm:text-lg font-semibold" style={{ color: 'var(--navy)' }}>
+                    <span
+                      className="label-text text-base sm:text-lg font-semibold"
+                      style={{ color: "var(--navy)" }}
+                    >
                       Difficulty Level
                     </span>
                   </label>
@@ -855,7 +924,12 @@ const CreateProblemForm = () => {
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
                     <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>Problem Tags</h3>
+                  <h3
+                    className="text-xl sm:text-2xl font-bold"
+                    style={{ color: "var(--navy)" }}
+                  >
+                    Problem Tags
+                  </h3>
                 </div>
                 <button
                   type="button"
@@ -901,7 +975,12 @@ const CreateProblemForm = () => {
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
                     <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>Test Cases</h3>
+                  <h3
+                    className="text-xl sm:text-2xl font-bold"
+                    style={{ color: "var(--navy)" }}
+                  >
+                    Test Cases
+                  </h3>
                 </div>
                 <button
                   type="button"
@@ -913,9 +992,15 @@ const CreateProblemForm = () => {
               </div>
               <div className="space-y-4 sm:space-y-6">
                 {testCaseFields.map((field, index) => (
-                  <div key={field.id} className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]">
+                  <div
+                    key={field.id}
+                    className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]"
+                  >
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-                      <h4 className="text-base sm:text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--navy)' }}>
+                      <h4
+                        className="text-base sm:text-lg font-semibold flex items-center gap-2"
+                        style={{ color: "var(--navy)" }}
+                      >
                         <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[var(--steel)] text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
                           {index + 1}
                         </div>
@@ -933,7 +1018,10 @@ const CreateProblemForm = () => {
                     <div className="grid grid-cols-1 gap-4 sm:gap-6">
                       <div className="form-control">
                         <label className="label">
-                          <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                          <span
+                            className="label-text font-medium text-sm sm:text-base"
+                            style={{ color: "var(--navy)" }}
+                          >
                             Input
                           </span>
                         </label>
@@ -952,7 +1040,10 @@ const CreateProblemForm = () => {
                       </div>
                       <div className="form-control">
                         <label className="label">
-                          <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                          <span
+                            className="label-text font-medium text-sm sm:text-base"
+                            style={{ color: "var(--navy)" }}
+                          >
                             Expected Output
                           </span>
                         </label>
@@ -984,7 +1075,7 @@ const CreateProblemForm = () => {
 
             {/* Code Editor Sections */}
             <div className="space-y-6 sm:space-y-8">
-              {["JAVASCRIPT", "PYTHON", "JAVA"].map((language) => (
+              {["JAVASCRIPT", "PYTHON", "JAVA", "CPP"].map((language) => (
                 <div
                   key={language}
                   className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]"
@@ -993,13 +1084,21 @@ const CreateProblemForm = () => {
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
                       <Code2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>{language}</h3>
+                    <h3
+                      className="text-xl sm:text-2xl font-bold"
+                      style={{ color: "var(--navy)" }}
+                    >
+                      {language}
+                    </h3>
                   </div>
 
                   <div className="space-y-4 sm:space-y-6">
                     {/* Starter Code */}
                     <div className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]">
-                      <h4 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--navy)' }}>
+                      <h4
+                        className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2"
+                        style={{ color: "var(--navy)" }}
+                      >
                         <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--steel)]" />
                         Starter Code Template
                       </h4>
@@ -1037,7 +1136,10 @@ const CreateProblemForm = () => {
 
                     {/* Reference Solution */}
                     <div className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]">
-                      <h4 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--navy)' }}>
+                      <h4
+                        className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2"
+                        style={{ color: "var(--navy)" }}
+                      >
                         <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                         Reference Solution
                       </h4>
@@ -1075,14 +1177,20 @@ const CreateProblemForm = () => {
 
                     {/* Examples */}
                     <div className="bg-[var(--cream)] rounded-xl p-4 sm:p-6 border border-[var(--beige)]">
-                      <h4 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2" style={{ color: 'var(--navy)' }}>
+                      <h4
+                        className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2"
+                        style={{ color: "var(--navy)" }}
+                      >
                         <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
                         Example
                       </h4>
                       <div className="grid grid-cols-1 gap-4 sm:gap-6">
                         <div className="form-control">
                           <label className="label">
-                            <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                            <span
+                              className="label-text font-medium text-sm sm:text-base"
+                              style={{ color: "var(--navy)" }}
+                            >
                               Input
                             </span>
                           </label>
@@ -1101,7 +1209,10 @@ const CreateProblemForm = () => {
                         </div>
                         <div className="form-control">
                           <label className="label">
-                            <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                            <span
+                              className="label-text font-medium text-sm sm:text-base"
+                              style={{ color: "var(--navy)" }}
+                            >
                               Output
                             </span>
                           </label>
@@ -1120,7 +1231,10 @@ const CreateProblemForm = () => {
                         </div>
                         <div className="form-control">
                           <label className="label">
-                            <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                            <span
+                              className="label-text font-medium text-sm sm:text-base"
+                              style={{ color: "var(--navy)" }}
+                            >
                               Explanation
                             </span>
                           </label>
@@ -1143,12 +1257,22 @@ const CreateProblemForm = () => {
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[var(--steel)] to-[var(--navy)] rounded-xl flex items-center justify-center">
                   <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--navy)' }}>Additional Information</h3>
+                <h3
+                  className="text-xl sm:text-2xl font-bold"
+                  style={{ color: "var(--navy)" }}
+                >
+                  Additional Information
+                </h3>
               </div>
               <div className="space-y-4 sm:space-y-6">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>Constraints</span>
+                    <span
+                      className="label-text font-medium text-sm sm:text-base"
+                      style={{ color: "var(--navy)" }}
+                    >
+                      Constraints
+                    </span>
                   </label>
                   <textarea
                     className="textarea textarea-bordered text-white bg-[var(--navy)] opacity-90 min-h-20 sm:min-h-24 w-full border-[var(--steel)] focus:border-[var(--navy)] focus:ring-2 focus:ring-[var(--navy)] focus:ring-opacity-20 resize-y text-sm sm:text-base"
@@ -1165,7 +1289,10 @@ const CreateProblemForm = () => {
                 </div>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                    <span
+                      className="label-text font-medium text-sm sm:text-base"
+                      style={{ color: "var(--navy)" }}
+                    >
                       Hints (Optional)
                     </span>
                   </label>
@@ -1177,7 +1304,10 @@ const CreateProblemForm = () => {
                 </div>
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium text-sm sm:text-base" style={{ color: 'var(--navy)' }}>
+                    <span
+                      className="label-text font-medium text-sm sm:text-base"
+                      style={{ color: "var(--navy)" }}
+                    >
                       Editorial (Optional)
                     </span>
                   </label>
@@ -1194,12 +1324,19 @@ const CreateProblemForm = () => {
             <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl border border-[var(--beige)]">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
                 <div className="text-center sm:text-left">
-                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: 'var(--navy)' }}>Ready to Create?</h3>
-                  <p className="text-sm sm:text-base text-[var(--steel)]">Review your problem details and submit when ready</p>
+                  <h3
+                    className="text-lg sm:text-xl font-bold mb-2"
+                    style={{ color: "var(--navy)" }}
+                  >
+                    Ready to Create?
+                  </h3>
+                  <p className="text-sm sm:text-base text-[var(--steel)]">
+                    Review your problem details and submit when ready
+                  </p>
                 </div>
-                
-                <button 
-                  type="submit" 
+
+                <button
+                  type="submit"
                   className="btn btn-primary btn-lg gap-3 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
                   disabled={isLoading}
                 >
@@ -1222,4 +1359,3 @@ const CreateProblemForm = () => {
 };
 
 export default CreateProblemForm;
-

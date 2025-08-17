@@ -3,7 +3,6 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  MemoryStick as Memory,
 } from "lucide-react";
 
 const SubmissionResults = ({ submission }) => {
@@ -16,6 +15,8 @@ const SubmissionResults = ({ submission }) => {
     memoryArr
       .map((m) => parseFloat(m)) // remove ' KB' using parseFloat
       .reduce((a, b) => a + b, 0) / memoryArr.length;
+
+  let avgMemoryMb = avgMemory / 1024;   //memory in mb
 
   const avgTime =
     timeArr
@@ -30,7 +31,7 @@ const SubmissionResults = ({ submission }) => {
     <div className="space-y-6">
       {/* Overall Status */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card bg-base-200 shadow-lg">
+        <div className="bg-[var(--steel)] shadow-lg">
           <div className="card-body p-4">
             <h3 className="card-title text-sm">Status</h3>
             <div
@@ -43,14 +44,14 @@ const SubmissionResults = ({ submission }) => {
           </div>
         </div>
 
-        <div className="card bg-base-200 shadow-lg">
+        <div className="bg-[var(--steel)] shadow-lg">
           <div className="card-body p-4">
             <h3 className="card-title text-sm">Success Rate</h3>
             <div className="text-lg font-bold">{successRate.toFixed(1)}%</div>
           </div>
         </div>
 
-        <div className="card bg-base-200 shadow-lg">
+        <div className="bg-[var(--steel)] shadow-lg">
           <div className="card-body p-4">
             <h3 className="card-title text-sm flex items-center gap-2">
               <Clock className="w-4 h-4" />
@@ -60,21 +61,20 @@ const SubmissionResults = ({ submission }) => {
           </div>
         </div>
 
-        <div className="card bg-base-200 shadow-lg">
+        <div className="bg-[var(--steel)] shadow-lg">
           <div className="card-body p-4">
             <h3 className="card-title text-sm flex items-center gap-2">
-              <Memory className="w-4 h-4" />
               Avg. Memory
             </h3>
-            <div className="text-lg font-bold">{avgMemory.toFixed(0)} KB</div>
+            <div className="text-lg font-bold">{avgMemoryMb.toFixed(1)} MB</div>
           </div>
         </div>
       </div>
 
       {/* Test Cases Results */}
-      <div className="card bg-base-100 shadow-xl">
+      <div className="bg-[var(--steel)] shadow-xl">
         <div className="card-body">
-          <h2 className="card-title mb-4">Test Cases Results</h2>
+          <h2 className="card-title mb-4" style={{color: "var(--cream)"}}>Test Cases Results</h2>
           <div className="overflow-x-auto">
             <table className="table table-zebra w-full">
               <thead>
@@ -104,8 +104,8 @@ const SubmissionResults = ({ submission }) => {
                     </td>
                     <td className="font-mono">{testCase.expected}</td>
                     <td className="font-mono">{testCase.stdout || "null"}</td>
-                    <td>{testCase.memory}</td>
-                    <td>{testCase.time}</td>
+                    <td>{(parseFloat(testCase.memory)/ 1024).toFixed(2)} MB</td>
+                    <td>{parseFloat(testCase.time).toFixed(2)} Sec</td>
                   </tr>
                 ))}
               </tbody>
