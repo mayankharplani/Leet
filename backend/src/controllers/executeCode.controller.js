@@ -183,7 +183,7 @@ export const runCode = async (req, res) => {
         time: result.time ? `${result.time} s` : undefined,
       };
     });
-
+    console.log(testCaseResults)
 
     res.status(200).json({
       success: true,

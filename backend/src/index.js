@@ -9,6 +9,7 @@ import problemRoutes from "./routes/problem.routes.js";
 import executionRoute from "./routes/executeCode.route.js";
 import submissionRoutes from "./routes/submission.routes.js";
 import playlistRoutes from "./routes/playlist.routes.js";
+import hintRoute from "./routes/hint.route.js";
 
 
 dotenv.config();
@@ -38,6 +39,8 @@ app.use("/api/v1/problem",problemRoutes);
 app.use("/api/v1/code",executionRoute)
 app.use("/api/v1/submission", submissionRoutes)
 app.use("/api/v1/playlist", playlistRoutes)
+
+app.use("/api/v1/service", hintRoute)
 
 
 app.listen(process.env.PORT,() => {
