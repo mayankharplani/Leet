@@ -9,7 +9,7 @@ export async function getAIHint(problemDescription,userCode,query) {
     const prompt = `
     Problem: ${problemDescription}
     User Code: ${userCode}
-    Task:  ${query} || Suggest a small hint without giving the full solution
+    Task:  ${query},dont give full code/solution || Suggest a small hint without giving the full solution
     `;
 
     const result = await model.generateContent(prompt)
