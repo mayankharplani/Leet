@@ -12,6 +12,7 @@ const HomePage = () => {
   const [selectedDifficulties, setSelectedDifficulties] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("Any");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     getAllProblems()
@@ -150,7 +151,7 @@ const HomePage = () => {
           
           {/* Header Section */}
           <div className="text-center mb-8">
-            <button className="inline-flex items-center gap-2 px-6 py-3 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg font-semibold hover:bg-white hover:bg-opacity-20 transition-all duration-300 mb-4 shadow-lg hover:shadow-xl transform hover:scale-105 border border-white border-opacity-20">
+            <button className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--cream)] bg-opacity-10 backdrop-blur-sm rounded-3xl font-semibold hover:bg-[var(--beige)] hover:bg-opacity-20 transition-all duration-300 mb-4 shadow-lg hover:shadow-xl transform hover:scale-105 border border-white border-opacity-20">
               <Code className="w-5 h-5" />
               All Problems
             </button>
@@ -162,115 +163,162 @@ const HomePage = () => {
           {/* Content Grid - Sidebar + Main */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
+            
             {/* Left Sidebar - Filters */}
             <div className="lg:col-span-1 min-w-2xs">
-              <div className="bg-gray-900 bg-opacity-80 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-semibold flex items-center gap-2 text-white">
-                    <Filter className="w-5 h-5" />
-                    Filters
-                  </h3>
-                  {hasActiveFilters && (
-                    <button 
-                      className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200 hover:scale-105"
-                      onClick={clearAllFilters}
-                    >
-                      Clear All
-                    </button>
-                  )}
-                </div>
+  {/* Mobile Show Filters Button */}
+  <div className="block lg:hidden mb-4">
+    <button
+      onClick={() => setShowFilters(!showFilters)}
+      className="w-full bg-gray-800 text-white py-2 px-4 rounded-lg border border-gray-600 hover:bg-gray-700 transition"
+    >
+      {showFilters ? "Hide Filters" : "Show Filters"}
+    </button>
+  </div>
 
-                {/* Difficulty Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium mb-3 text-gray-300">Difficulty</h4>
-                  <div className="space-y-2">
-                    {['EASY', 'MEDIUM', 'HARD'].map((diff) => (
-                      <label key={diff} className="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform duration-200">
-                        <input 
-                          type="checkbox" 
-                          className="checkbox checkbox-sm" 
-                          style={{ accentColor: '#3b82f6' }}
-                          checked={selectedDifficulties.includes(diff)}
-                          onChange={() => handleDifficultyChange(diff)}
-                        />
-                        <span className="text-sm text-gray-300">{diff}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+  {/* Filters Section */}
+  {/* Always visible on desktop, toggle on mobile */}
+  <div
+    className={`${
+      showFilters ? "block" : "hidden"
+    } lg:block bg-gray-900 bg-opacity-80 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300`}
+  >
+    <div className="flex justify-between items-center mb-6">
+      <h3 className="text-lg font-semibold flex items-center gap-2 text-white">
+        <Filter className="w-5 h-5" />
+        Filters
+      </h3>
+      {hasActiveFilters && (
+        <button
+          className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200 hover:scale-105"
+          onClick={clearAllFilters}
+        >
+          Clear All
+        </button>
+      )}
+    </div>
 
-                {/* Status Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium mb-3 text-gray-300">Status</h4>
-                  <div className="space-y-2">
-                    {['SOLVED', 'UNSOLVED', 'Any'].map((status) => (
-                      <label key={status} className="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform duration-200">
-                        <input 
-                          type="radio" 
-                          name="status" 
-                          className="radio radio-sm" 
-                          style={{ accentColor: '#3b82f6' }}
-                          checked={selectedStatus === status}
-                          onChange={() => setSelectedStatus(status)}
-                        />
-                        <span className="text-sm text-gray-300">{status}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+    {/* Difficulty Filter */}
+    <div className="mb-6">
+      <h4 className="font-medium mb-3 text-gray-300">Difficulty</h4>
+      <div className="space-y-2">
+        {["EASY", "MEDIUM", "HARD"].map((diff) => (
+          <label
+            key={diff}
+            className="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform duration-200"
+          >
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              style={{ accentColor: "#3b82f6" }}
+              checked={selectedDifficulties.includes(diff)}
+              onChange={() => handleDifficultyChange(diff)}
+            />
+            <span className="text-sm text-gray-300">{diff}</span>
+          </label>
+        ))}
+      </div>
+    </div>
 
-                {/* Tags Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium mb-3 text-gray-300">Tags</h4>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {allTags.slice(0, 8).map((tag) => (
-                      <label key={tag} className="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform duration-200">
-                        <input 
-                          type="checkbox" 
-                          className="checkbox checkbox-sm" 
-                          style={{ accentColor: '#3b82f6' }}
-                          checked={selectedTags.includes(tag)}
-                          onChange={() => handleTagChange(tag)}
-                        />
-                        <span className="text-sm text-gray-300">{tag}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {allTags.length > 8 && (
-                    <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200 mt-2 flex items-center gap-1 hover:scale-105">
-                      Show More
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
+    {/* Status Filter */}
+    <div className="mb-6">
+      <h4 className="font-medium mb-3 text-gray-300">Status</h4>
+      <div className="space-y-2">
+        {["SOLVED", "UNSOLVED", "Any"].map((status) => (
+          <label
+            key={status}
+            className="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform duration-200"
+          >
+            <input
+              type="radio"
+              name="status"
+              className="radio radio-sm"
+              style={{ accentColor: "#3b82f6" }}
+              checked={selectedStatus === status}
+              onChange={() => setSelectedStatus(status)}
+            />
+            <span className="text-sm text-gray-300">{status}</span>
+          </label>
+        ))}
+      </div>
+    </div>
 
-                {/* Active Filters Summary */}
-                {hasActiveFilters && (
-                  <div className="pt-4 border-t border-gray-700">
-                    <h4 className="font-medium mb-2 text-gray-300">Active Filters:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedDifficulties.map(diff => (
-                        <span key={diff} className="badge badge-sm hover:scale-105 transition-transform duration-200 bg-blue-900 text-blue-200 border-blue-700">
-                          {diff}
-                        </span>
-                      ))}
-                      {selectedStatus !== "Any" && (
-                        <span key={selectedStatus} className="badge badge-sm hover:scale-105 transition-transform duration-200 bg-blue-900 text-blue-200 border-blue-700">
-                          {selectedStatus}
-                        </span>
-                      )}
-                      {selectedTags.map(tag => (
-                        <span key={tag} className="badge badge-sm hover:scale-105 transition-transform duration-200 bg-blue-900 text-blue-200 border-blue-700">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+    {/* Tags Filter */}
+    <div className="mb-6">
+      <h4 className="font-medium mb-3 text-gray-300">Tags</h4>
+      <div className="space-y-2 max-h-32 overflow-y-auto">
+        {allTags.slice(0, 8).map((tag) => (
+          <label
+            key={tag}
+            className="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform duration-200"
+          >
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              style={{ accentColor: "#3b82f6" }}
+              checked={selectedTags.includes(tag)}
+              onChange={() => handleTagChange(tag)}
+            />
+            <span className="text-sm text-gray-300">{tag}</span>
+          </label>
+        ))}
+      </div>
+      {allTags.length > 8 && (
+        <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200 mt-2 flex items-center gap-1 hover:scale-105">
+          Show More
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+      )}
+    </div>
+
+    {/* Active Filters Summary */}
+    {hasActiveFilters && (
+      <div className="pt-4 border-t border-gray-700">
+        <h4 className="font-medium mb-2 text-gray-300">Active Filters:</h4>
+        <div className="flex flex-wrap gap-2">
+          {selectedDifficulties.map((diff) => (
+            <span
+              key={diff}
+              className="badge badge-sm hover:scale-105 transition-transform duration-200 bg-blue-900 text-blue-200 border-blue-700"
+            >
+              {diff}
+            </span>
+          ))}
+          {selectedStatus !== "Any" && (
+            <span
+              key={selectedStatus}
+              className="badge badge-sm hover:scale-105 transition-transform duration-200 bg-blue-900 text-blue-200 border-blue-700"
+            >
+              {selectedStatus}
+            </span>
+          )}
+          {selectedTags.map((tag) => (
+            <span
+              key={tag}
+              className="badge badge-sm hover:scale-105 transition-transform duration-200 bg-blue-900 text-blue-200 border-blue-700"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+            
 
             {/* Main Content Area */}
             <div className="lg:col-span-3">

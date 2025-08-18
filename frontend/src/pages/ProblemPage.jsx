@@ -410,20 +410,13 @@ const ProblemPage = () => {
                 >
                   <Bookmark className="w-4 h-4" />
                 </button>
-
-                <div className="flex items-center gap-1">
-                  <select
-                    className="select bg-[var(--steel)] border-[var(--beige)] text-white rounded-lg focus:border-[var(--beige)] focus:ring-2 focus:ring-[var(--beige)] focus:ring-opacity-20 text-xs min-w-20"
-                    value={selectedLanguage}
-                    onChange={handleLanguageChange}
+                  <button
+                    onClick={handleCopy}
+                    className="p-2 rounded-lg text-gray-400 hover:text-[var(--beige)] hover:bg-[var(--steel)] transition-all duration-200"
                   >
-                    {Object.keys(problem?.codeSnippets || {}).map((lang) => (
-                      <option key={lang} value={lang}>
-                        {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                
               </div>
             </div>
           </div>
@@ -506,7 +499,7 @@ const ProblemPage = () => {
 
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <select
-                    className="select bg-[var(--steel)] border-[var(--beige)] text-white rounded-lg focus:border-[var(--beige)] focus:ring-2 focus:ring-[var(--beige)] focus:ring-opacity-20 text-sm sm:text-base min-w-32"
+                    className=" select bg-[var(--steel)] border-[var(--beige)] text-white rounded-lg focus:border-[var(--beige)] focus:ring-2 focus:ring-[var(--beige)] focus:ring-opacity-20 text-sm sm:text-base min-w-32"
                     value={selectedLanguage}
                     onChange={handleLanguageChange}
                   >
@@ -601,6 +594,19 @@ const ProblemPage = () => {
                 <span className="font-semibold text-sm sm:text-base">
                   Code Editor
                 </span>
+                </div>
+                <div className="flex lg:hidden items-center gap-1">
+                  <select
+                    className="select bg-[var(--steel)] border-[var(--beige)] text-white rounded-lg focus:border-[var(--beige)] focus:ring-2 focus:ring-[var(--beige)] focus:ring-opacity-20 text-xs min-w-20"
+                    value={selectedLanguage}
+                    onChange={handleLanguageChange}
+                  >
+                    {Object.keys(problem?.codeSnippets || {}).map((lang) => (
+                      <option key={lang} value={lang}>
+                        {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <TimerButton/>
               </div>
