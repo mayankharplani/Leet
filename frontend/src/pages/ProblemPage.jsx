@@ -9,22 +9,17 @@ import {
   Bookmark,
   Share2,
   Clock,
-  ChevronRight,
   BookOpen,
   Terminal,
   Code2,
   Users,
-  ThumbsUp,
-  Home,
   ArrowLeft,
   CheckCircle,
-  XCircle,
   AlertCircle,
   Zap,
   Target,
   Trophy,
-  BarChart3,
-  Code,BotMessageSquare
+  BotMessageSquare
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -38,7 +33,6 @@ import { getLanguageId } from "../libs/lang.js";
 import SubmissionResults from "../components/SubmissionResults.jsx";
 import SubmissionList from "../components/SubmissionList.jsx";
 import RunningResults from "../components/RunningResults.jsx";
-import Timer from "../components/TimerButton.jsx";
 import TimerButton from "../components/TimerButton.jsx";
 import HintButton from "../components/HintButton.jsx";
 
@@ -537,7 +531,7 @@ const ProblemPage = () => {
             <div className="bg-[var(--steel)] px-3 sm:px-4 md:px-6 py-3 sm:py-4">
               <div className="tabs tabs-bordered tabs-lifted gap-1">
                 <button
-                  className={`tab gap-1 sm:gap-2 text-sm sm:text-md md:text-base transition-all duration-200 ${
+                  className={`tab flex flex-col gap-1  sm:gap-2 text-sm sm:text-md md:text-base transition-all duration-200 ${
                     activeTab === "description"
                       ? "tab-active bg-[var(--navy)] rounded-xl text-white border-[var(--steel)]"
                       : "text-gray-300 hover:text-white"

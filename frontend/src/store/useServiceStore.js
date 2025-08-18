@@ -14,7 +14,10 @@ export const useServiceStore = create((set) => ({
                 code,
                 query
             })
-            set({hint: res.data.hint})
+            const hint =  res.data.hint;
+            set({hint: hint})
+
+            return hint;
         } catch (error) {
             console.log("Error fetching hint", error)
         }finally{
