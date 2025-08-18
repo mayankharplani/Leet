@@ -89,7 +89,7 @@ export const login = async (req,res) => {
                 email: user.email,
                 name: user.name,
                 role: user.role,
-                image: user.image
+                image: user.image,
             }
         })
     } catch (error) {
@@ -133,3 +133,5 @@ export const check = async (req,res) => {
         })   
     }
 } 
+
+

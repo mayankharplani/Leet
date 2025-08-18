@@ -29,8 +29,19 @@ export const authMiddleware = async (req,res,next) => {
                 name: true,
                 email: true,
                 role: true,
-                createdAt: true
-            }
+                createdAt: true,
+                problemSolved: {
+                    include:{
+                        problem: {
+                            select: {
+                                title: true,
+                                difficulty: true,
+                                tags: true
+                            }
+                        }
+                    }
+                }
+            },
         });
 
         if(!user){
