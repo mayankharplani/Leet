@@ -23,6 +23,7 @@ import {
   Filler,
 } from "chart.js";
 import { Doughnut} from "react-chartjs-2";
+import { useProblemStore } from "../store/useProblemStore.js";
 
 ChartJS.register(
   ArcElement,
@@ -139,11 +140,20 @@ const ProfilePage = () => {
     submissions: submissionList,
     getAllSubmissions,
   } = useSubmissionStore();
+  const { problems, getAllProblems } = useProblemStore()
 
   useEffect(() => {
     getAttemptedProblems(), getAllSubmissions();
-  }, [getAttemptedProblems]);
-  console.log(authUser)
+    getAllProblems()
+  }, [getAttemptedProblems,getAllSubmissions,getAllProblems]);
+
+
+  console.log("Authenticated User",authUser)
+  console.log("All problems",problems)
+
+
+  
+
 
 
 const difficultyCount = authUser.problemSolved.reduce(
@@ -183,6 +193,19 @@ const difficultyBreakdown = [
 
 
 
+
+
+  const totalProblemsexist = problems.length
+  const totalTagCount = {}
+  for(const problem of problems){
+    for(const tag of problem.tags){
+        totalTagCount[tag] = (totalTagCount[tag] || 0) + 1;
+    }
+  }
+  console.log(totalTagCount);
+  
+
+
   const tagCount = {};
   const solvedProblems = authUser.problemSolved;
 
@@ -197,9 +220,9 @@ const difficultyBreakdown = [
 
   
 
-const skills = Object.entries(tagCount).map(([tag, count]) => ({
+const skills = Object.entries(totalTagCount).map(([tag, count]) => ({
   name: tag,
-  level: Math.round((count / totalSolved) * 100)
+  level: Math.round(((tagCount[tag] || 0) / totalTagCount[tag]) * 100)
 }));
 
   return (
