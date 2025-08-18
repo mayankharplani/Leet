@@ -66,7 +66,7 @@ function App() {
         <Route path="/playlist" element />
         <Route path="/main" element={<MainPage />} />
 
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to={"/login"} />} />
         <Route
           path="/problem/:id"
           element={authUser ? <ProblemPage /> : <Navigate to={"/login"} />}
