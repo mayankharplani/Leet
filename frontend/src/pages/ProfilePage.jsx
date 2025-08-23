@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   Mail,
   Calendar,
@@ -9,9 +9,6 @@ import {
   Award,
   ShieldCheck,
 } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
-import { useSubmissionStore } from "../store/useSubmissionStore";
-import Navbar from "../components/Navbar.jsx"
 import {
   Chart as ChartJS,
   ArcElement,
@@ -23,7 +20,17 @@ import {
   Filler,
 } from "chart.js";
 import { Doughnut} from "react-chartjs-2";
+
+
+
+
+import { useAuthStore } from "../store/useAuthStore";
+import { useSubmissionStore } from "../store/useSubmissionStore";
+import Navbar from "../components/Navbar.jsx"
 import { useProblemStore } from "../store/useProblemStore.js";
+
+
+
 
 ChartJS.register(
   ArcElement,
@@ -73,64 +80,7 @@ const DonutChart = ({ segments = [], size = 160, stroke = 18 }) => {
   );
 };
 
-const RadialProgress = ({
-  value = 70,
-  size = 120,
-  stroke = 10,
-  color = "#3E5879",
-}) => {
-  const data = {
-    labels: ["Progress"],
-    datasets: [
-      {
-        label: "Progress",
-        data: [value, 100 - value],
-        backgroundColor: [color, "rgba(255,255,255,0.1)"],
-        borderColor: [color, "rgba(255,255,255,0.1)"],
-        borderWidth: 0,
-        cutout: "80%",
-      },
-    ],
-  };
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        enabled: false,
-      },
-    },
-    elements: {
-      arc: {
-        borderWidth: 0,
-      },
-    },
-  };
-
-  return (
-    <div style={{ width: size, height: size, position: "relative" }}>
-      <Doughnut data={data} options={options} />
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          fontSize: "1.5rem",
-          fontWeight: "700",
-          color: "white",
-          textAlign: "center",
-        }}
-      >
-        {value}%
-      </div>
-    </div>
-  );
-};
 
 const ProfilePage = () => {
   const { authUser } = useAuthStore();

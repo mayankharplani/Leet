@@ -1,13 +1,17 @@
 import React,{useState, useMemo, useEffect} from 'react'
 import {useAuthStore} from "../store/useAuthStore.js"
+import {useActions} from "../store/useAction.js"
 import {Link} from "react-router-dom"
-import {Bookmark,PencilIcon, Trash, TrashIcon, Plus, Code} from "lucide-react"
+import {Bookmark,PencilIcon, Trash, TrashIcon, Plus, Code, Loader2} from "lucide-react"
+import { useProblemStore } from '../store/useProblemStore.js'
 
 const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "Any", selectedTags = []}) => {
     const {authUser} = useAuthStore();
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1); 
     const [IsCreateModalOpen,setIsCreateModalOpen] = useState(false)
+    const {isDeletingProblem, onDeleteProblem} = useActions()
+    const {getAllProblems} = useProblemStore()
 
     // Reset to first page when filters change
     useEffect(() => {
@@ -60,11 +64,12 @@ const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "An
     },[filteredProblems,currentPage])
 
     const handleDelete = (id) => {
-
+      onDeleteProblem(id);
+      getAllProblems();
     }
 
     const handleAddToPlaylist = (id) => {
-
+      
     }
 
     return (
@@ -184,8 +189,12 @@ const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "An
                            {
                             authUser?.role === "ADMIN" ? (
                                <>
-                               <button className='text-red-500 hover:text-red-400 transition-colors duration-200 cursor-pointer'>
-                              <Trash className='w-5 h-5'/> 
+                               <button 
+                               onClick={() => handleDelete(problem.id)}
+                               className='text-red-500 hover:text-red-400 transition-colors duration-200 cursor-pointer'>
+                              {
+                                isDeletingProblem ? <Loader2 className='animate-spin w-4' /> : <Trash className='w-5 h-5'/> 
+                              }
                             </button>
                             <button className='text-yellow-500 hover:text-yellow-400 transition-colors duration-200 cursor-pointer'>
                               <Bookmark className='w-5 h-5'/> 
@@ -300,8 +309,12 @@ const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "An
                                     <div className="flex items-center gap-2">
                                         {authUser?.role === "ADMIN" && (
                                             <>
-                                                <button className='p-2 text-red-500 hover:text-white hover:bg-red-400  hover:bg-opacity-10 rounded-lg transition-all duration-200'>
-                                                    <Trash className='w-4 h-4'/> 
+                                                <button 
+                                                onClick={() => handleDelete(problem.id)}
+                                                className='p-2 text-red-500 hover:text-white hover:bg-red-400  hover:bg-opacity-10 rounded-lg transition-all duration-200'>
+                                                    {
+                                                      isDeletingProblem ? <Loader2 className='animate-spin w-4 h-4' /> : <Trash className='w-4 h-4'/> 
+                                                    }
                                                 </button>
                                                 <button className='p-2 text-yellow-500 hover:text-white hover:bg-yellow-400  hover:bg-opacity-10 rounded-lg transition-all duration-200'>
                                                     <Bookmark className='w-4 h-4'/> 

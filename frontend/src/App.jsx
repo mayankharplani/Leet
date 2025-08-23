@@ -46,7 +46,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index path="/" element={<MainPage />} />
+          <Route index  element={<MainPage />} />
         </Route>
 
         {/*  AUTHENTICATION ROUTES    */}
@@ -59,7 +59,7 @@ function App() {
 
         <Route
           path="/problems"
-          element={authUser ? <HomePage /> : <Navigate to={"/login"} />}
+          element={authUser ? <HomePage /> : <Navigate to={"/login"} replace  />}
         />
         <Route path="/add-problem" element={<AddProblem />} />
         {/* <Route path='/problems' element /> */}
