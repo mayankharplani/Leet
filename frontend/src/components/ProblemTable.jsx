@@ -4,14 +4,20 @@ import {useActions} from "../store/useAction.js"
 import {Link} from "react-router-dom"
 import {Bookmark,PencilIcon, Trash, TrashIcon, Plus, Code, Loader2} from "lucide-react"
 import { useProblemStore } from '../store/useProblemStore.js'
+import { usePlaylistStore } from '../store/usePlaylistStore.js'
+import AddToPlaylist from './AddToPlaylist.jsx'
+import CreatePlaylistModal from './CreatePlaylistModal.jsx'
 
 const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "Any", selectedTags = []}) => {
     const {authUser} = useAuthStore();
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1); 
     const [IsCreateModalOpen,setIsCreateModalOpen] = useState(false)
+    const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false)
+    const [selectedProblemId,setSelectedProblemId] = useState(null);
     const {isDeletingProblem, onDeleteProblem} = useActions()
     const {getAllProblems} = useProblemStore()
+    const {createPlaylist} = usePlaylistStore()
 
     // Reset to first page when filters change
     useEffect(() => {
@@ -69,7 +75,12 @@ const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "An
     }
 
     const handleAddToPlaylist = (id) => {
-      
+      setSelectedProblemId(id)
+      setIsAddToPlaylistModalOpen(true);
+    }
+
+    const handleCreatePlaylist = async (data) => {
+      await createPlaylist(data)
     }
 
     return (
@@ -370,6 +381,18 @@ const ProblemTable = ({problems, selectedDifficulties = [], selectedStatus = "An
                     <span className="sm:hidden">Next</span>
                 </button>
             </div>
+            <CreatePlaylistModal
+            isOpen={IsCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSubmit={handleCreatePlaylist}
+            />
+          <AddToPlaylist 
+          isOpen={isAddToPlaylistModalOpen}
+          onClose={() => setIsAddToPlaylistModalOpen(false)}
+          problemId={selectedProblemId}
+          />
+           
+
         </div>
     )
 }
