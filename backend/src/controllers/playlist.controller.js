@@ -60,7 +60,7 @@ export const createPlaylist = async (req,res) => {
     try {
         const {name,description} = req.body;
 
-        const userId = req.user.userId
+        const userId = req.user.id
         const playlist = await db.playlist.create({
             data:{
                 name,
@@ -88,9 +88,9 @@ export const addProblemtoPlaylist = async (req,res) => {
         if(!Array.isArray(problemIds) || problemIds.length === 0){
             return res.status(400).json({error: "Invalid or missing problemId"});
         }
-        const problemsInPlaylist = await db.problemsInPlaylist.createMany({
+        const problemsInPlaylist = await db.problemInPlaylist.createMany({
             data: problemIds.map((problemId) => ({
-                playlistId,
+                playListId:playlistId,
                 problemId
             }))
         })
@@ -133,7 +133,7 @@ export const removeProblemFromPlaylist = async (req,res) => {
          if(!Array.isArray(problemIds) || problemIds.length === 0){
             return res.status(400).json({error: "Invalid or missing problemId"});
         }
-        const deletedProblem = await db.problemsInPlaylist.deleteMany({
+        const deletedProblem = await db.problemInPlaylist.deleteMany({
             where:{
                 playlistId,
                 problemIds:{
