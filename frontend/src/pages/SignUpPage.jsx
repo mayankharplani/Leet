@@ -232,12 +232,16 @@ const SignUpPage = () => {
                 Or continue with
               </p>
               <div className="flex justify-center space-x-4 cursor-pointer">
-                <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer">
+                <button 
+                
+                className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer">
                   <FaGithub size={28} />
                 </button>
-                <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer">
+                <Link 
+                to={`http://localhost:8080/api/v1/auth/google`}
+                className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer">
                   <FaGoogle size={28} />
-                </button>
+                </Link>
                 <button className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors cursor-pointer">
                   <FaLinkedin size={28} />
                 </button>
